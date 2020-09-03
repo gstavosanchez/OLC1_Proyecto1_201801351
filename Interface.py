@@ -1,9 +1,13 @@
+from tkinter import filedialog
 from tkinter import ttk
 from tkinter import *
 from tkinter import scrolledtext
+from io import open
+import os
+import sys
+import msvcrt
 
 from CustomText import CustomText
-
 from Analizador import Analicis
 
 class Interface():
@@ -22,7 +26,9 @@ class Interface():
 
         self.menu = Menu(self.wind) # Menu Bar
         self.file_item = Menu(self.menu,bg='#374140',activebackground = '#84407B', tearoff=0)
-        self.file_item.add_command(label = 'Open file',command=self.open_File)
+        self.file_item.add_command(label = 'Open JS',command=self.open_FileJS)
+        self.file_item.add_command(label = 'Open CSS',command=self.open_FileCSS)
+        self.file_item.add_command(label = 'Open HTML',command=self.open_FileHTML)
 
         self.file_item.add_separator()
         self.file_item.add_command(label = 'Exit',command=self.exit_program)
@@ -31,7 +37,6 @@ class Interface():
         self.wind.config(menu = self.menu)
 
         #TextArea de la entrada
-        #self.textArea = scrolledtext.ScrolledText(self.wind,width = 100,height = 25, bg ="#453B46", foreground = "#FFFFFF")
         self.textArea.tag_configure("red", foreground="#ff0000")
         self.textArea.tag_configure("blue", foreground="#004DFF")
         self.textArea.tag_configure("yellow", foreground="#FFF000")
@@ -84,12 +89,40 @@ class Interface():
         
     
     
-    def open_File(self):
-        print('Hola mundo')
-        return True
+    def open_FileJS(self):
+        try:
+            ruta =  ""
+            #root = Tk()
+            filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("JS files","*.js"),("all files","*.*")))
+            ruta = filename
+            if ruta != "":
+                self.write_consola(ruta)
+                return ruta
+            else:
+                
+                return None
+
+        except IndexError as e:
+            print(e)
+
+    #Metodo de lectura y escritura de archivo
+    def write_consola(self,ruta):
+        try:
+            archivo = open(f"{ruta}","r")
+            texto = archivo.read()
+            archivo.close()
+            self.textArea.insert("2.0",texto)
+            
+        except (FileNotFoundError, IOError):
+            print("Error en la lectura")
+    
+    def open_FileCSS(self):
+        pass
+    def open_FileHTML(self):
+        pass
     
     def exit_program(self):
-        pass
+        sys.exit()
 
     def set_color_palabra(self,texto):
         self.entrada  = texto + '$'
@@ -138,7 +171,13 @@ class Interface():
                 self.color_sintaxisJS(self.cacterActual)
                 self.lexema = ""
 
+            if self.entrada[posicion - 1] == '"' or self.entrada[posicion - 1] == "'" :
+                sizeLexema = self.get_size_lexemaEspecial(posicion)
+                palabra = self.get_lexema(posicion,posicion +(sizeLexema -1))
+                self.color_sintaxisJS(palabra)
+                posicion = posicion + sizeLexema
             
+
             # q0 -> q1 Si es numero 
             elif self.cacterActual.isnumeric():
                 sizeLexema = self.get_size_lexema(posicion)
@@ -147,11 +186,6 @@ class Interface():
                 posicion = posicion + sizeLexema
 
 
-            if self.entrada[posicion - 1] == '"':
-                sizeLexema = self.get_size_lexemaEspecial(posicion)
-                palabra = self.get_lexema(posicion,posicion +sizeLexema)
-                self.color_sintaxisJS(palabra)
-                posicion = posicion + sizeLexema
 
             if self.entrada[posicion - 1] == '/' and self.cacterActual == '/':
                 sizeLexema = self.get_size_lexemaComentario_un(posicion)
@@ -188,10 +222,10 @@ class Interface():
     def get_size_lexemaEspecial(self,inicial):
         longitud = 0
         for i in range(inicial,len(self.entrada) -1 ):
-            if self.entrada[i] == "\n" or self.entrada[i] == '"':
+            if self.entrada[i] == '"' or self.entrada[i] == "'":
                 break
             longitud +=1
-        return longitud
+        return longitud + 1
     
     # devuelve la longitul del lexema si esta en un --> comentario uniliniea
     def get_size_lexemaComentario_un(self,inicial):
@@ -217,3 +251,5 @@ class Interface():
         self.lexema = ""  
         #print(self.entrada[actual:fin])
         return (self.entrada[actual:fin])
+
+    

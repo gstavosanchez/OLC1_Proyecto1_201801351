@@ -29,7 +29,7 @@ class Analicis():
             
             
             #q0 -> q1 por que es simbolo :V
-
+            #print(f"Pos{posicion} letra:{self.cacterActual}")
             if self.cacterActual == "{":
                 self.add_token(Tipo.llAbre,"{","white")
             elif self.cacterActual == "}":
@@ -58,6 +58,19 @@ class Analicis():
                 self.add_token(Tipo.comiAbre,'"',"white")
 
             
+        
+            if self.entrada[posicion - 1] == '"' or self.entrada[posicion - 1] == "'"  or self.cacterActual == "'" or self.cacterActual == '"' :
+                sizeLexema = self.get_size_lexemaEspecial(posicion)
+                #print(f"SizeLexema en ' :{sizeLexema}")
+                self.q5(posicion,posicion+sizeLexema)
+                posicion = posicion + sizeLexema
+                if (self.entrada[posicion] == "\n"):
+                    self.linea += 1
+                #print(f"Caracter Actual: {self.cacterActual}")
+                #print(f"Anterior:{self.entrada[posicion -1]}  Actual:{self.entrada[posicion]}  siguinte:{self.entrada[posicion + 1]}")
+
+
+
             # q0 -> q1 Si es numero 
             elif self.cacterActual.isnumeric():
                 sizeLexema = self.get_size_lexema(posicion)
@@ -65,11 +78,7 @@ class Analicis():
                 posicion = posicion + sizeLexema
 
 
-            if self.entrada[posicion - 1] == '"':
-                sizeLexema = self.get_size_lexemaEspecial(posicion)
-                self.q5(posicion,posicion+sizeLexema)
-                posicion = posicion + sizeLexema
-
+            
             if self.entrada[posicion - 1] == '/' and self.cacterActual == '/':
                 #print(self.cacterActual)
                 sizeLexema = self.get_size_lexemaComentario_un(posicion)
@@ -86,8 +95,10 @@ class Analicis():
                 self.analizador_id_reservada(posicion,posicion + sizeLexema);
                 posicion = posicion + sizeLexema
 
-                
-            
+            if self.cacterActual == "\n":
+                self.linea += 1
+                #print(f" 1 if Salto de linea en :{self.linea}")
+
             #print(posicion)
             posicion +=1 
 
@@ -284,12 +295,13 @@ class Analicis():
 
     def q5(self,actual,fin):
         c = ''
+        fin = fin - 1 
         while actual < fin:
             c = self.entrada[actual]
             self.lexema += c
+
             if(actual + 1 == fin):
                 self.add_token(Tipo.valor,self.lexema,"yellow")
-            
             actual +=1
     
     def q6(self,actual,fin):
@@ -328,9 +340,11 @@ class Analicis():
     def get_size_lexema(self, posInicial):
         longitud = 0
         for i in range(posInicial,len(self.entrada) -1 ):
-            if self.entrada[i] == "\n":
+                #if self.entrada[i] == "(" or self.entrada[i] == ")" or self.entrada[i] == " " or self.entrada[i] == "{" or self.entrada[i] == "}" or self.entrada[i] == "," or self.entrada[i] == ";" or self.entrada[i] == ":" or self.entrada[i] == "\n" or self.entrada[i] == "\t" or self.entrada[i] == "\r"  or self.entrada[i] == "=" or self.entrada[i] == '"' or self.entrada[i] == "//" or self.entrada[i] == "/*" or self.entrada[i] == "*/":
+            if self.entrada[i] == "(" or self.entrada[i] == ")" or self.entrada[i] == " " or self.entrada[i] == "{" or self.entrada[i] == "}" or self.entrada[i] == "," or self.entrada[i] == ";" or self.entrada[i] == ":" or self.entrada[i] == "\n" or self.entrada[i] == "\t" or self.entrada[i] == "\r"  or self.entrada[i] == "=" or self.entrada[i] == "//" or self.entrada[i] == "/*" or self.entrada[i] == "*/":
+                if self.entrada[i] == "\n":
                     self.linea +=1 
-            if self.entrada[i] == "(" or self.entrada[i] == ")" or self.entrada[i] == " " or self.entrada[i] == "{" or self.entrada[i] == "}" or self.entrada[i] == "," or self.entrada[i] == ";" or self.entrada[i] == ":" or self.entrada[i] == "\n" or self.entrada[i] == "\t" or self.entrada[i] == "\r"  or self.entrada[i] == "=" or self.entrada[i] == '"' or self.entrada[i] == "//" or self.entrada[i] == "/*" or self.entrada[i] == "*/":
+                    #print(f" size_lexema if Salto de linea en :{self.linea}")
                 break
             longitud +=1
         return longitud
@@ -339,16 +353,21 @@ class Analicis():
     def get_size_lexemaEspecial(self,inicial):
         longitud = 0
         for i in range(inicial,len(self.entrada) -1 ):
-            if self.entrada[i] == "\n" or self.entrada[i] == '"':
+            if self.entrada[i] == "\n":
+                self.linea +=1 
+                print(f" size_lexema_Especial if Salto de linea en :{self.linea}")
+            if self.entrada[i] == '"' or self.entrada[i] == "'":
                 break
             longitud +=1
-        return longitud
+        return longitud+1
     
     # devuelve la longitul del lexema si esta en un --> comentario uniliniea
     def get_size_lexemaComentario_un(self,inicial):
         longitud = 0
         for i in range(inicial,len(self.entrada) -1 ):
             if self.entrada[i] == "\n":
+                self.linea += 1
+                #print(f" size_lexema_COmentarioUni if Salto de linea en :{self.linea}")
                 break
             longitud +=1
         return longitud
@@ -357,6 +376,9 @@ class Analicis():
     def get_size_lexemaComentario_mul(self,inicial):
         longitud = 0
         for i in range(inicial,len(self.entrada) -1 ):
+            if self.entrada[i] == "\n":
+                self.linea +=1 
+                #print(f" size_lexema_COmentarioMulti if Salto de linea en :{self.linea}")
             if self.entrada[i] == '*' and self.entrada[i + 1] == '/':
                 break
             longitud +=1
@@ -384,5 +406,10 @@ class Analicis():
         listaClonada = self.lista_token;
         return listaClonada;
 
-
-    
+    def is_empty(self,data_structure):
+        if data_structure:
+            #print("No está vacía")
+            return False
+        else:
+            #print("Está vacía")
+            return True
