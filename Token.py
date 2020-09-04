@@ -25,6 +25,7 @@ class Tipo(Enum):
     negacion = 61
     disyuncion = 62
     por = 63
+    comenPor = 64
 
 
 

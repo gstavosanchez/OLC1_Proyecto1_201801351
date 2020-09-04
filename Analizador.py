@@ -30,6 +30,14 @@ class Analicis():
             
             #q0 -> q1 por que es simbolo :V
             #print(f"Pos{posicion} letra:{self.cacterActual}")
+            
+            if self.cacterActual == '/' and self.entrada[posicion + 1] == '*':
+                self.add_token(Tipo.comenPor,'/*',"gray")
+                sizeLexema = self.get_size_lexemaComentario_mul(posicion)
+                self.q6(posicion+2,posicion+sizeLexema)
+                posicion = posicion + sizeLexema
+                
+
             if self.cacterActual == "{":
                 self.add_token(Tipo.llAbre,"{","")
             elif self.cacterActual == "}":
@@ -69,7 +77,7 @@ class Analicis():
             elif self.cacterActual == '|' and self.entrada[posicion + 1 ] == '|':
                 self.add_token(Tipo.negacion,'||' ,"anaranjado")
             elif self.cacterActual == '*':
-                self.add_token(Tipo.por,'*',"anaranjado")
+                self.add_token(Tipo.por,'*',"")
 
 
             
@@ -101,6 +109,7 @@ class Analicis():
                 posicion = posicion + sizeLexema
             
             elif self.entrada[posicion - 1] == '/' and self.cacterActual == '*':
+                print(f"actaul:{self.cacterActual}")
                 sizeLexema = self.get_size_lexemaComentario_mul(posicion)
                 self.q6(posicion+1,posicion+sizeLexema)
                 posicion = posicion + sizeLexema
@@ -130,7 +139,7 @@ class Analicis():
             #print(posicion)
             posicion +=1 
 
-        self.imprimir()
+        #self.imprimir()
             
         return self.pos_error;
 

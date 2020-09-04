@@ -66,8 +66,8 @@ class Interface():
         
     
         analizado = self.analizador._incio(entrada)
-        self.set_color_palabra(entrada)
         self.setConsola(analizado)
+        self.set_color_palabra(entrada)
         self.analizador.clear_data()
     
         
@@ -135,6 +135,10 @@ class Interface():
         while posicion < len(self.entrada):
             self.cacterActual = self.entrada[posicion]
 
+            if self.cacterActual == '/' and self.entrada[posicion + 1] == '*':
+                caracterDoble = self.cacterActual + self.entrada[posicion + 1]
+                self.color_sintaxisJS(caracterDoble)
+                self.lexema = ""
             if self.cacterActual == "{":
                 self.color_sintaxisJS(self.cacterActual)
                 self.lexema = ""
@@ -181,6 +185,17 @@ class Interface():
                 self.lexema = ""
             elif self.cacterActual == "'":
                 self.color_sintaxisJS(self.cacterActual)
+                self.lexema = ""
+            elif self.cacterActual == '&' and self.entrada[posicion + 1] == '&':
+                caracterDoble = self.cacterActual + self.entrada[posicion + 1]
+                self.color_sintaxisJS(caracterDoble)
+                self.lexema = ""
+            elif self.cacterActual == '!':
+                self.color_sintaxisJS(self.cacterActual)
+                self.lexema = ""
+            elif self.cacterActual == '|' and self.entrada[posicion + 1 ] == '|':
+                caracterDoble = self.cacterActual + self.entrada[posicion + 1]
+                self.color_sintaxisJS(caracterDoble)
                 self.lexema = ""
 
             if self.entrada[posicion - 1] == '"' or self.entrada[posicion - 1] == "'" :
