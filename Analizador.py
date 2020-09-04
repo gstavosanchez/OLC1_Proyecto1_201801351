@@ -56,6 +56,13 @@ class Analicis():
                 self.add_token(Tipo.menor,"<","white")
             elif self.cacterActual == '"':
                 self.add_token(Tipo.comiAbre,'"',"white")
+            elif self.cacterActual == '.':
+                self.add_token(Tipo.punto,'.',"white")
+            elif self.cacterActual == ',':
+                self.add_token(Tipo.coma,',',"white")
+            elif self.cacterActual == "'":
+                self.add_token(Tipo.comiSimple,"'","white")
+
 
             
         
@@ -79,28 +86,41 @@ class Analicis():
 
 
             
-            if self.entrada[posicion - 1] == '/' and self.cacterActual == '/':
+            elif self.entrada[posicion - 1] == '/' and self.cacterActual == '/':
                 #print(self.cacterActual)
                 sizeLexema = self.get_size_lexemaComentario_un(posicion)
                 self.q6(posicion+1,posicion+sizeLexema)
                 posicion = posicion + sizeLexema
             
-            if self.entrada[posicion - 1] == '/' and self.cacterActual == '*':
+            elif self.entrada[posicion - 1] == '/' and self.cacterActual == '*':
                 sizeLexema = self.get_size_lexemaComentario_mul(posicion)
                 self.q6(posicion+1,posicion+sizeLexema)
                 posicion = posicion + sizeLexema
              
-            if self.cacterActual.isalpha():
+            elif self.cacterActual.isalpha():
                 sizeLexema  = self.get_size_lexema(posicion)
                 self.analizador_id_reservada(posicion,posicion + sizeLexema);
                 posicion = posicion + sizeLexema
 
-            if self.cacterActual == "\n":
+            elif self.cacterActual == "\n":
                 self.linea += 1
                 #print(f" 1 if Salto de linea en :{self.linea}")
 
+            else:
+                if self.cacterActual == "$" and posicion == len(self.entrada) -1:
+                    print("analicis terminado ..")
+                else:
+                    if self.cacterActual != " " and self.cacterActual != "\n"  and self.cacterActual != "\t" and self.cacterActual != "\r":
+                        if (self.cacterActual != '/'):
+                            if(self.cacterActual.isspace() == False and self.is_empty(self.cacterActual) == False):
+                                #print(f"caracter de error :{self.cacterActual}")
+                                self.pos_error[self.linea] = self.insert_error(posicion,self.cacterActual)
             #print(posicion)
             posicion +=1 
+
+        self.imprimir()
+            
+        return self.pos_error;
 
         self.imprimir()
             
@@ -316,8 +336,6 @@ class Analicis():
 
         
 
-
-
     def get_lexema(self,actual,fin):
         return (self.entrada[actual:fin])
 
@@ -341,7 +359,7 @@ class Analicis():
         longitud = 0
         for i in range(posInicial,len(self.entrada) -1 ):
                 #if self.entrada[i] == "(" or self.entrada[i] == ")" or self.entrada[i] == " " or self.entrada[i] == "{" or self.entrada[i] == "}" or self.entrada[i] == "," or self.entrada[i] == ";" or self.entrada[i] == ":" or self.entrada[i] == "\n" or self.entrada[i] == "\t" or self.entrada[i] == "\r"  or self.entrada[i] == "=" or self.entrada[i] == '"' or self.entrada[i] == "//" or self.entrada[i] == "/*" or self.entrada[i] == "*/":
-            if self.entrada[i] == "(" or self.entrada[i] == ")" or self.entrada[i] == " " or self.entrada[i] == "{" or self.entrada[i] == "}" or self.entrada[i] == "," or self.entrada[i] == ";" or self.entrada[i] == ":" or self.entrada[i] == "\n" or self.entrada[i] == "\t" or self.entrada[i] == "\r"  or self.entrada[i] == "=" or self.entrada[i] == "//" or self.entrada[i] == "/*" or self.entrada[i] == "*/":
+            if  self.entrada[i] == "," or self.entrada[i] == "(" or self.entrada[i] == ")" or self.entrada[i] == " " or self.entrada[i] == "{" or self.entrada[i] == "}" or self.entrada[i] == "," or self.entrada[i] == ";" or self.entrada[i] == ":" or self.entrada[i] == "\n" or self.entrada[i] == "\t" or self.entrada[i] == "\r"  or self.entrada[i] == "=" or self.entrada[i] == "//" or self.entrada[i] == "/*" or self.entrada[i] == "*/" or self.entrada[i] == '.':
                 if self.entrada[i] == "\n":
                     self.linea +=1 
                     #print(f" size_lexema if Salto de linea en :{self.linea}")
@@ -355,7 +373,7 @@ class Analicis():
         for i in range(inicial,len(self.entrada) -1 ):
             if self.entrada[i] == "\n":
                 self.linea +=1 
-                print(f" size_lexema_Especial if Salto de linea en :{self.linea}")
+                #print(f" size_lexema_Especial if Salto de linea en :{self.linea}")
             if self.entrada[i] == '"' or self.entrada[i] == "'":
                 break
             longitud +=1
@@ -413,3 +431,16 @@ class Analicis():
         else:
             #print("Está vacía")
             return True
+    
+
+    #limpia las variables globales para otra ejecucion
+    def clear_data(self):
+        self.cacterActual = ""
+        self.estado = 0
+        self.lexema = "" 
+        self.entrada = ""
+        self.linea = 1
+        self.columan = 1
+        self.lista_token = list()
+        self.lista_error = list()
+        self.pos_error = {}

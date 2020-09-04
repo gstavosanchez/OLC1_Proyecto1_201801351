@@ -18,6 +18,9 @@ class Tipo(Enum):
     comiAbre = 11 
     comiCier = 12
     igual = 13
+    punto = 57
+    comiSimple = 58
+    coma = 59
 
 
     #Palabras reservadas 

@@ -58,6 +58,7 @@ class Interface():
         
 
     def getText(self):
+        self.txtConsola.delete("1.0","end")
         entrada = self.textArea.get("1.0",END)
 
         #self.txtConsola.delete("1.0",END)
@@ -66,6 +67,7 @@ class Interface():
         analizado = self.analizador._incio(entrada)
         self.set_color_palabra(entrada)
         self.setConsola(analizado)
+        self.analizador.clear_data()
     
         
 
@@ -159,8 +161,8 @@ class Interface():
             elif self.cacterActual == "-":
                 self.color_sintaxisJS(self.cacterActual)
                 self.lexema = ""
-            #elif self.cacterActual == "/":
-                #self.add_token(Tipo.division,"/","white")
+            elif self.cacterActual == '//':
+                self.lexema = ""
             elif self.cacterActual == ">":
                 self.color_sintaxisJS(self.cacterActual)
                 self.lexema = ""
@@ -168,6 +170,9 @@ class Interface():
                 self.color_sintaxisJS(self.cacterActual)
                 self.lexema = ""
             elif self.cacterActual == '"':
+                self.color_sintaxisJS(self.cacterActual)
+                self.lexema = ""
+            elif self.cacterActual == '.':
                 self.color_sintaxisJS(self.cacterActual)
                 self.lexema = ""
 
@@ -213,7 +218,7 @@ class Interface():
     def get_size_lexema(self, posInicial):
         longitud = 0
         for i in range(posInicial,len(self.entrada) -1 ):
-            if self.entrada[i] == "(" or self.entrada[i] == ")" or self.entrada[i] == " " or self.entrada[i] == "{" or self.entrada[i] == "}" or self.entrada[i] == "," or self.entrada[i] == ";" or self.entrada[i] == ":" or self.entrada[i] == "\n" or self.entrada[i] == "\t" or self.entrada[i] == "\r"  or self.entrada[i] == "=" or self.entrada[i] == '"' or self.entrada[i] == "//" or self.entrada[i] == "/*" or self.entrada[i] == "*/":
+            if self.entrada[i] == "(" or self.entrada[i] == ")" or self.entrada[i] == " " or self.entrada[i] == "{" or self.entrada[i] == "}" or self.entrada[i] == "," or self.entrada[i] == ";" or self.entrada[i] == ":" or self.entrada[i] == "\n" or self.entrada[i] == "\t" or self.entrada[i] == "\r"  or self.entrada[i] == "=" or self.entrada[i] == '"' or self.entrada[i] == "//" or self.entrada[i] == "/*" or self.entrada[i] == "*/" or self.entrada[i] == ".":
                 break
             longitud +=1
         return longitud
