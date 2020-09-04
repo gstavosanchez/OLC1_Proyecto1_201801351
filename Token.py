@@ -21,6 +21,11 @@ class Tipo(Enum):
     punto = 57
     comiSimple = 58
     coma = 59
+    conjuncion = 60
+    negacion = 61
+    disyuncion = 62
+    por = 63
+
 
 
     #Palabras reservadas 

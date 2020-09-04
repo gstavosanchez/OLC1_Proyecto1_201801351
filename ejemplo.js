@@ -36,8 +36,10 @@ function session(){
 }
 
 
+
 function obtener(){
     session();^
+    
 
     var f = new Date();
 

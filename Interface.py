@@ -43,6 +43,7 @@ class Interface():
         self.textArea.tag_configure("green", foreground="#00A817")
         self.textArea.tag_configure("gray", foreground="#ABAAAA")
         self.textArea.tag_configure("white", foreground="#FFFFFF")
+        self.textArea.tag_configure("anaranjado", foreground="#FF8000")
         self.textArea.place(x = 40, y = 35)
         
 
@@ -173,6 +174,12 @@ class Interface():
                 self.color_sintaxisJS(self.cacterActual)
                 self.lexema = ""
             elif self.cacterActual == '.':
+                self.color_sintaxisJS(self.cacterActual)
+                self.lexema = ""
+            elif self.cacterActual == '*':
+                self.color_sintaxisJS(self.cacterActual)
+                self.lexema = ""
+            elif self.cacterActual == "'":
                 self.color_sintaxisJS(self.cacterActual)
                 self.lexema = ""
 

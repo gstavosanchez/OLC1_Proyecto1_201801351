@@ -31,37 +31,45 @@ class Analicis():
             #q0 -> q1 por que es simbolo :V
             #print(f"Pos{posicion} letra:{self.cacterActual}")
             if self.cacterActual == "{":
-                self.add_token(Tipo.llAbre,"{","white")
+                self.add_token(Tipo.llAbre,"{","")
             elif self.cacterActual == "}":
-                self.add_token(Tipo.llCier,"}","white")
+                self.add_token(Tipo.llCier,"}","")
             elif self.cacterActual == "=":
-                self.add_token(Tipo.igual,"=","white")
+                self.add_token(Tipo.igual,"=","anaranjado")
             elif self.cacterActual == '(':
-                self.add_token(Tipo.paAbre,"(","white")
+                self.add_token(Tipo.paAbre,"(","")
             elif self.cacterActual == ")":
-                self.add_token(Tipo.paCierr,')',"white")
+                self.add_token(Tipo.paCierr,')',"")
             elif self.cacterActual  == ":":
-                self.add_token(Tipo.dpuntos,":","white")
+                self.add_token(Tipo.dpuntos,":","")
             elif self.cacterActual == ";":
-                self.add_token(Tipo.pcoma,";","white")
+                self.add_token(Tipo.pcoma,";","")
             elif self.cacterActual == "+":
-                self.add_token(Tipo.mas, "+","white")
+                self.add_token(Tipo.mas, "+","anaranjado")
             elif self.cacterActual == "-":
-                self.add_token(Tipo.menos, "-","white")
+                self.add_token(Tipo.menos, "-","anaranjado")
             #elif self.cacterActual == "/":
                 #self.add_token(Tipo.division,"/","white")
             elif self.cacterActual == ">":
-                self.add_token(Tipo.mayor,">","white")
+                self.add_token(Tipo.mayor,">","anaranjado")
             elif self.cacterActual == "<":
-                self.add_token(Tipo.menor,"<","white")
+                self.add_token(Tipo.menor,"<","anaranjado")
             elif self.cacterActual == '"':
-                self.add_token(Tipo.comiAbre,'"',"white")
+                self.add_token(Tipo.comiAbre,'"',"yellow")
             elif self.cacterActual == '.':
-                self.add_token(Tipo.punto,'.',"white")
+                self.add_token(Tipo.punto,'.',"")
             elif self.cacterActual == ',':
-                self.add_token(Tipo.coma,',',"white")
+                self.add_token(Tipo.coma,',',"")
             elif self.cacterActual == "'":
-                self.add_token(Tipo.comiSimple,"'","white")
+                self.add_token(Tipo.comiSimple,'\'',"yellow")
+            elif self.cacterActual == '&' and self.entrada[posicion + 1] == '&':
+                self.add_token(Tipo.conjuncion,"&&" ,"anaranjado")
+            elif self.cacterActual == '!':
+                self.add_token(Tipo.negacion,'!' ,"anaranjado")
+            elif self.cacterActual == '|' and self.entrada[posicion + 1 ] == '|':
+                self.add_token(Tipo.negacion,'||' ,"anaranjado")
+            elif self.cacterActual == '*':
+                self.add_token(Tipo.por,'*',"anaranjado")
 
 
             
@@ -113,8 +121,12 @@ class Analicis():
                     if self.cacterActual != " " and self.cacterActual != "\n"  and self.cacterActual != "\t" and self.cacterActual != "\r":
                         if (self.cacterActual != '/'):
                             if(self.cacterActual.isspace() == False and self.is_empty(self.cacterActual) == False):
-                                #print(f"caracter de error :{self.cacterActual}")
-                                self.pos_error[self.linea] = self.insert_error(posicion,self.cacterActual)
+                                if(self.cacterActual == '&' and self.entrada[posicion - 1] == '&'):
+                                    pass
+                                elif(self.cacterActual == '|' and self.entrada[posicion - 1] == '|'):
+                                    pass
+                                else:
+                                    self.pos_error[self.linea] = self.insert_error(posicion,self.cacterActual)
             #print(posicion)
             posicion +=1 
 
@@ -122,9 +134,7 @@ class Analicis():
             
         return self.pos_error;
 
-        self.imprimir()
-            
-        return self.pos_error;
+        
 
 
     #-----> Estado3 (q2) -------------------
