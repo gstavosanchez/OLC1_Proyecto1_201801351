@@ -13,6 +13,8 @@ class TipoCSS(Enum):
     COMIDOBLE = 8
     XCENTAJE = 9
     PUNTO = 10
+    PABRE = 62
+    PCIER =  63
 
     # Unidad de MEDIDA
     _PX = 11

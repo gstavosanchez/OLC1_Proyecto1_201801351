@@ -85,7 +85,7 @@ class Interface():
         entrada = self.textArea.get("1.0",END)
 
         analizado = self.analizadorCSS.read_caracter(entrada)
-
+        self.analizadorCSS.limpiarCarcateres()
 
 
 
