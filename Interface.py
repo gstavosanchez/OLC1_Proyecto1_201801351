@@ -9,6 +9,7 @@ import msvcrt
 
 from CustomText import CustomText
 from Analizador import Analicis
+from AnalizadorCSS import Anality_CSS
 
 class Interface():
     def __init__(self,window):
@@ -18,17 +19,24 @@ class Interface():
         self.wind.configure(bg = '#0A010B')
         self.textArea = CustomText(self.wind,width = 100,height = 25, bg ="#453B46", foreground = "#FFFFFF")
         self.txtConsola = Entry(self.wind, width = 10)
-        self.play_button = PhotoImage(file = 'play2.png')
+        self.play_button = PhotoImage(file = 'resource/js.png')
+        self.play_css = PhotoImage(file = 'resource/css.png')
+        self.play_html = PhotoImage(file = 'resource/HTML.png')
         self.play_button = self.play_button.subsample(10,10)
+        self.play_css = self.play_css.subsample(10,10)
+        self.play_html = self.play_html.subsample(10,10)
         self.buttonOk = Button(self.wind,image = self.play_button, command = self.getText, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
+        self.buttonOkCSS = Button(self.wind,image = self.play_css, command = self.getTextCSS, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
+        self.buttonOkHTML = Button(self.wind,image = self.play_html, command = self.getTextHTML, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
+
         self.lexema = ""
         self.analizador = Analicis()
-
+        self.analizadorCSS = Anality_CSS()
+        
         self.menu = Menu(self.wind) # Menu Bar
         self.file_item = Menu(self.menu,bg='#374140',activebackground = '#84407B', tearoff=0)
-        self.file_item.add_command(label = 'Open JS',command=self.open_FileJS)
-        self.file_item.add_command(label = 'Open CSS',command=self.open_FileCSS)
-        self.file_item.add_command(label = 'Open HTML',command=self.open_FileHTML)
+        self.file_item.add_command(label = 'Open File...',command=self.open_File)
+        
 
         self.file_item.add_separator()
         self.file_item.add_command(label = 'Exit',command=self.exit_program)
@@ -56,6 +64,8 @@ class Interface():
 
 
         self.buttonOk.place(x = 900, y =15)
+        self.buttonOkCSS.place(x = 900, y = 80)
+        self.buttonOkHTML.place(x = 900, y = 145)
         
 
     def getText(self):
@@ -69,6 +79,18 @@ class Interface():
         self.setConsola(analizado)
         self.set_color_palabra(entrada)
         self.analizador.clear_data()
+    
+    def getTextCSS(self):
+        self.txtConsola.delete("1.0","end")
+        entrada = self.textArea.get("1.0",END)
+
+        analizado = self.analizadorCSS.read_caracter(entrada)
+
+
+
+
+    def getTextHTML(self):
+        pass
     
         
 
@@ -92,11 +114,11 @@ class Interface():
         
     
     
-    def open_FileJS(self):
+    def open_File(self):
         try:
             ruta =  ""
             #root = Tk()
-            filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("JS files","*.js"),("all files","*.*")))
+            filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("JS files","*.js"),("CSS files","*.css"),("HTML files","*.html"),("all files","*.*")))
             ruta = filename
             if ruta != "":
                 self.write_consola(ruta)
@@ -119,10 +141,6 @@ class Interface():
         except (FileNotFoundError, IOError):
             print("Error en la lectura")
     
-    def open_FileCSS(self):
-        pass
-    def open_FileHTML(self):
-        pass
     
     def exit_program(self):
         sys.exit()
