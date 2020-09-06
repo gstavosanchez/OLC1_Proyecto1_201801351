@@ -85,6 +85,7 @@ class Interface():
         entrada = self.textArea.get("1.0",END)
 
         analizado = self.analizadorCSS.read_caracter(entrada)
+        self.setConsolaCSS(analizado)
         self.analizadorCSS.limpiarCarcateres()
 
 
@@ -102,6 +103,13 @@ class Interface():
             for caracter in values:
                 texto += f"Error Lexico in Line:{key}, Carcater:{caracter} \n"
         
+        self.txtConsola.insert("2.0",texto)
+
+    def setConsolaCSS(self,listError):
+        self.txtConsola.delete("1.0","end")
+        texto = ""
+        for value in listError:
+            texto += f"Error in [ Ln {value.getLinea()} ] , Carcater:{value.getCaracter()} \n"
         self.txtConsola.insert("2.0",texto)
 
     

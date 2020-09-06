@@ -18,13 +18,13 @@ class Anality_CSS():
         self.lexema = ""
 
     def read_caracter(self,texto):
-        self.entrada = texto + ' $'
+        self.entrada = texto + '$'
         self.caracterActual = ''
         
         x = 0
         while x < len(self.entrada):
             self.caracterActual = self.entrada[x]
-        
+            #print(self.caracterActual)
             # qo -> q1(simbolos del lenguje)
             if self.caracterActual == '{':
                 self.add_tokken(TipoCSS.LLABRE,'{',"")
@@ -49,32 +49,54 @@ class Anality_CSS():
                 x = x + size_lexema
 
             elif self.caracterActual.isalpha():
-                pass
+                size_lexema = self.get_size_lexema_asterisco(x)
+                self.q4(x, x+ size_lexema)
+                x = x + size_lexema
 
             elif self.caracterActual == '/' and self.entrada[x + 1] == '*':
                 size_lexema = self.get_size_lexema_comentario(x)
-                self.q6(x,x +size_lexema+2)
-                x = x + size_lexema + 2  # PENDIENTE DE REVISAR URGE PORNER MAS size_lexema +2
+                if (x + size_lexema + 2  <=   len(self.entrada)):
+                    self.q6(x,x +size_lexema+2)
+                    x = x + size_lexema + 2  # PENDIENTE DE REVISAR URGE PORNER MAS size_lexema +2
+                else:
+                    self.q6(x,x +size_lexema)
+                    x = x + size_lexema
+                    self.add_error(x,self.linea,self.columna,'*/')
+                    break
 
             elif self.caracterActual == '#' or self.caracterActual == '.':
+                size_lexema = self.get_size_lexema_asterisco(x)
+                self.q4(x, x+ size_lexema)
+                x = x + size_lexema
+            
+            elif self.caracterActual == '-':
                 pass
             
+            #elif self.caracterActual == "\n":
+                #print("Salto de linea")
+
             elif self.caracterActual == "\n" or self.caracterActual == " " or self.caracterActual == "\t" or self.caracterActual == "\t":
                 if self.caracterActual == "\n":
                     self.linea += 1
                     self.columna = 1 
+                    print("Salto de linea principal")
 
                 x += 1
                 self.columna += 1
                 continue
+
             else:
-                pass
+                if self.caracterActual == "$" and x == len(self.entrada) -1 :
+                    print("Analicis Terminado")
+                else:
+                    self.add_error(x,self.linea,self.columna,self.caracterActual)
 
             x += 1
             self.columna += 1
 
 
-        self.imprimirToken()
+        #self.imprimirToken()
+        self.ruta_comentario()
         return self.lista_error
 
     # ----------------->ESTADO Q2 <-------------------------------------- 
@@ -88,7 +110,6 @@ class Anality_CSS():
             if c.isnumeric():
                 self.lexema += c
                 if (actual + 1 == fin):
-                   
                     self.add_tokken(TipoCSS.VALOR,self.lexema,"blue")
 
             # q2 -> q2 con  % (%)
@@ -112,6 +133,7 @@ class Anality_CSS():
                 self.add_error(actual,self.linea,self.columna,c)            
             actual +=1
             self.columna +=1
+            
 
     # ----------------->ESTADO Q3 <--------------------------------------
     # Letra
@@ -146,14 +168,191 @@ class Anality_CSS():
             self.columna += 1
             actual += 1
 
+    # ----------------->Estado Q4 <--------------------------------------
+    #  Reservadas 
+    def q4(self,actual,fin):
+        self.lexema = self.get_lexema(actual,fin)
+
+        if self.lexema == "color":
+            self.add_tokken(TipoCSS.COLOR,'color','red')
+            return
+        elif self.lexema == "border":
+            self.add_tokken(TipoCSS.BORDER,"border","red")
+            return
+        elif self.lexema == "text-align":
+            self.add_tokken(TipoCSS.TEXT_ALIGN,"text-align","red")
+            return
+        elif self.lexema == "font-weight":
+            self.add_tokken(TipoCSS.FONT_WEIGHT,"font-weight","red")
+            return
+        elif self.lexema == "padding-left":
+            self.add_tokken(TipoCSS.PADDING_LEFT,"padding-left","red")
+            return
+        elif self.lexema == "padding-top":
+            self.add_tokken(TipoCSS.PADDING_TOP,"padding-top","red")
+            return
+        elif self.lexema == "line-height":
+            self.add_tokken(TipoCSS.LINE_HEIGHT,"line-height","red")
+            return
+        elif self.lexema == "margin-top":
+            self.add_tokken(TipoCSS.MARGIN_TOP,"margin-top","red")
+            return
+        elif self.lexema == "margin-left":
+            self.add_tokken(TipoCSS.MARGIN_LEFT,"margin-left","red")
+            return
+        elif self.lexema == "display":
+            self.add_tokken(TipoCSS.DISPLAY,"display","red")
+            return
+        elif self.lexema == "top":
+            self.add_tokken(TipoCSS.TOP,"top","red")
+            return
+        elif self.lexema == "float":
+            self.add_tokken(TipoCSS.FLOAT,"float","red")
+            return
+        elif self.lexema == "min-width":
+            self.add_tokken(TipoCSS.MIN_WIDTH,"min-width","red")
+            return
+        elif self.lexema == "background-color":
+            self.add_tokken(TipoCSS.BACKGROUND_COLOR,"background-color","red")
+            return 
+        elif self.lexema == "background":
+            self.add_tokken(TipoCSS.BACKGROUND,"background","red")
+            return
+        elif self.lexema == "font-family":
+            self.add_tokken(TipoCSS.FONT_FAMILY,"font-family","red")
+            return
+        elif self.lexema == "font-size":
+            self.add_tokken(TipoCSS.FONT_SIZE,"font-size","red")
+            return
+        elif self.lexema == "padding-right":
+            self.add_tokken(TipoCSS.PADDING_RIGHT,"padding-right","red")
+            return
+        elif self.lexema == "padding":
+            self.add_tokken(TipoCSS.PADDING,"padding","red")
+            return
+        elif self.lexema == "width":
+            self.add_tokken(TipoCSS.WIDTH,"width","red")
+            return
+        elif self.lexema == "margin-right":
+            self.add_tokken(TipoCSS.MARGIN_RIGHT,"margin-right","red")
+            return
+        elif self.lexema == "margin":
+            self.add_tokken(TipoCSS.MARGIN,"margin","red")
+            return
+        elif self.lexema == "bottom":
+            self.add_tokken(TipoCSS.BOTTOM,"bottom","red")
+            return
+        elif self.lexema == "right":
+            self.add_tokken(TipoCSS.RIGHT,"right","red")
+            return
+        elif self.lexema == "clear":
+            self.add_tokken(TipoCSS.CLEAR,"clear","red")
+            return
+        elif self.lexema == "max-height":
+            self.add_tokken(TipoCSS.MAX_HEIGHT,"max-height","red")
+            return 
+        elif self.lexema == "background-image":
+            self.add_tokken(TipoCSS.BACKGROUND_IMAGE,"background-image","red")
+            return
+        elif self.lexema == "font-style":
+            self.add_tokken(TipoCSS.FONT_STYLE,"font-style","red")
+            return
+        elif self.lexema == "font":
+            self.add_tokken(TipoCSS.FONT,"font","red")
+            return 
+        elif self.lexema == "padding-bottom":
+            self.add_tokken(TipoCSS.PADDING_BOTTOM,"padding-bottom","red")
+            return 
+        elif self.lexema == "margin-bottom":
+            self.add_tokken(TipoCSS.MARGIN_BOTTOM,"margin-bottom","red")
+            return 
+        elif self.lexema == "border-style":
+            self.add_tokken(TipoCSS.BORDER_STYLE,"border-style","red")
+            return
+        elif self.lexema == "position":
+            self.add_tokken(TipoCSS.POSITION,"position","red")
+            return
+        elif self.lexema == "left":
+            self.add_tokken(TipoCSS.LEFT,"left","red")
+            return
+        elif self.lexema == "max-width":
+            self.add_tokken(TipoCSS.MAX_WIDTH,"max-width","red")
+            return
+        elif self.lexema == "min-height":
+            self.add_tokken(TipoCSS.MIN_HEIGHT,"min-height","red")
+            return
+
+
+        self.lexema = ""
+        c = ''
+        while actual< fin:
+            c = self.entrada[actual]
+            # q4 -> q5 (letra | numero)
+            if c == '#':
+                self.lexema += c
+                self.q5(actual + 1,fin)
+                break
+
+            # q4 -> q5 (letra | numero)
+            elif c == '.':
+                self.q5(actual + 1,fin)
+                break
+
+            # q4 -> q5 (letra | numero)
+            elif c.isalpha():
+                self.q5(actual,fin)
+                break
+            else:
+                self.add_error(actual,self.linea,self.columna,c)
+
+            actual += 1
+            self.columna += 1
+
+
+    # --------------------------> <--------------------------------------
+    # ----------------->ESTADO Q5 <--------------------------------------
+    def q5(self,actual,fin):
+        c = ''
+        while actual < fin:
+            c = self.entrada[actual]
+            # q5 -> q5 (letra)
+            if c.isalpha():
+                self.lexema += c
+                if(actual + 1 == fin):
+                    self.add_tokken(TipoCSS.ID,self.lexema,"green")
+            elif c.isnumeric():
+                self.lexema += c
+                if(actual +1 == fin):
+                    self.add_tokken(TipoCSS.ID,self.lexema,"green")
+            elif c == '-':
+                self.lexema += c
+                if(actual +1 == fin):
+                    self.add_tokken(TipoCSS.ID,self.lexema,"green")
+            # q5 -> q4 (#)
+            elif c == '#' or c == '(' or c == ')' or c == '"' or c == '.'  or  c == '/':
+                self.lexema += c
+                if(actual +1 == fin):
+                    self.add_tokken(TipoCSS.ID,self.lexema,"green")
+                
+            else:
+                #print(self.linea)
+                self.add_error(actual,self.linea,self.columna,c)
+            
+            actual += 1
+            self.columna += 1
+
+
+    # --------------------------> <--------------------------------------
+
+
     def get_size_lexema_asterisco(self,incio):
         longitud = 0
         for j in range(incio,len(self.entrada) - 1):
-        #while incio < len(self.entrada):
             if self.entrada[j] == " " or self.entrada[j] == "," or self.entrada[j] == ';' or self.entrada[j] == ':' or self.entrada[j] == "\n" or self.entrada[j] == '<' or self.entrada[j] == '>' or self.entrada[j] == '{' or self.entrada[j] == '}' or self.entrada[j] == "\t" or self.entrada == "\r":
                 if self.entrada[j] == "\n":
                     self.linea += 1
                     self.columna = 1
+                    print("Salto de linea get_size_lexema")
                 break
             longitud += 1
         return longitud
@@ -165,6 +364,7 @@ class Anality_CSS():
             if self.entrada[j] == "\n":
                 self.linea += 1
                 self.columna = 1
+                print("Salto de linea comentraio")
             if self.entrada[j] == "*" and self.entrada[j + 1] == '/':
                 break
             longitud += 1
@@ -174,9 +374,14 @@ class Anality_CSS():
     def get_lexema(self,inicio,fin):
         palabra = ""
         for x in range(inicio,fin):
+            if self.entrada[x] == "\n":
+                self.linea += 1
+                self.columna = 1
+                print("Salto de linea en get_lexema")
+
             palabra += self.entrada[x]
             self.columna += 1
-        return palabra
+        return palabra.lower()
 
     
     def add_tokken(self,tipo,valor,color):
@@ -186,8 +391,11 @@ class Anality_CSS():
         self.lexema = ""
     
     def add_error(self,posicion,linea,columna,caracter):
-        newError = Error_Lexico(posicion,linea,columna,caracter)
-        self.lista_error.append(newError)
+        if(caracter == '/' or caracter == '*' or caracter == '{' or caracter == '}' or caracter == '"' or caracter == ';' or caracter == ':' or caracter == ',' or caracter == '<' or caracter == '>' or caracter == '(' or caracter == ')'):
+            pass
+        else:
+            newError = Error_Lexico(posicion,linea,columna,caracter)
+            self.lista_error.append(newError)
 
     def imprimirToken(self):
         for valor in self.lista_Tokens:
@@ -195,10 +403,21 @@ class Anality_CSS():
             print("--------------------------------------------------------")
     
     def limpiarCarcateres(self):
-        self.cacterActual = ""
+        self.caracterActual = ''
         self.lexema = "" 
         self.entrada = ""
         self.linea = 1
-        self.columan = 1
+        self.columna = 1
         self.lista_Tokens = list()
         self.lista_error = list()
+
+    def ruta_comentario(self):
+        ruta = ''
+        for valor in self.lista_Tokens:                
+            if TipoCSS.COMENTARIO == valor.getTipoToken():
+                tokenValor =  valor.getValorToken()
+                if(tokenValor.find("PATHW")) != -1:
+                    ruta = tokenValor[tokenValor.find('c:'):tokenValor.find('*/')].strip()
+        
+        return ruta
+        
