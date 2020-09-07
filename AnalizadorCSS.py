@@ -1,6 +1,7 @@
 from TokenCSS import TipoCSS
 from TokenCSS import TokenCSS
 from Error import Error_Lexico
+from Reporte import Report
 
 
 class Anality_CSS():
@@ -9,6 +10,10 @@ class Anality_CSS():
     linea = 1
     columna = 1
     lexema = ""
+    bandera = False
+    actibarBandera = False
+    recorrido_automata = {}
+    _reporte = Report()
 
     def __init__(self):
         self.lista_Tokens = list()
@@ -16,10 +21,15 @@ class Anality_CSS():
         self.linea = 1
         self.columna = 1
         self.lexema = ""
+        self.bandera = False
+        self.actibarBandera = False
+        self.recorrido_automata = {}
+        self._reporte = Report()
 
     def read_caracter(self,texto):
         self.entrada = texto + '$'
         self.caracterActual = ''
+        self.newEntrada = texto
         
         x = 0
         while x < len(self.entrada):
@@ -65,12 +75,20 @@ class Anality_CSS():
                     break
 
             elif self.caracterActual == '#' or self.caracterActual == '.':
+                if (self.bandera == False):
+                    self.actibarBandera = True
+                    transicion = f"{self.caracterActual},q4"
+                    self.add_diccionario('q0',transicion)
+                    
+
                 size_lexema = self.get_size_lexema_asterisco(x)
                 self.q4(x, x+ size_lexema)
                 x = x + size_lexema
             
             elif self.caracterActual == '-':
-                pass
+                size_lexema = self.get_size_lexema_asterisco(x)
+                self.q2(x,x + size_lexema)
+                x = x + size_lexema
             
             #elif self.caracterActual == "\n":
                 #print("Salto de linea")
@@ -96,35 +114,49 @@ class Anality_CSS():
 
 
         #self.imprimirToken()
-        self.ruta_comentario()
+        self.imprimir_listadoAutomata()
         return self.lista_error
 
     # ----------------->ESTADO Q2 <-------------------------------------- 
     # Numero 
     def q2(self,actual,fin):
         c = ''
+        inicio = actual
         while actual < fin:
             c = self.entrada[actual]
             # q2 -> q2 con numero (numero)
             
             if c.isnumeric():
                 self.lexema += c
+                #transicion = f"{c},q2"
+                #self.add_diccionario('q2',transicion)
                 if (actual + 1 == fin):
                     self.add_tokken(TipoCSS.VALOR,self.lexema,"blue")
 
             # q2 -> q2 con  % (%)
             elif c == '%':
                 self.lexema += c
+                #transicion = f"{c},q7"
+                #self.add_diccionario('q2',transicion)
                 if (actual + 1 == fin):
                     self.add_tokken(TipoCSS.VALOR,self.lexema,"blue")
             # q2 -> q2 con . (.)
             elif c == '.':
                 self.lexema += c
+                #transicion = f"{c},q2"
+                #self.add_diccionario('q2',transicion)
                 if (actual + 1 == fin):
                     self.add_tokken(TipoCSS.VALOR,self.lexema,"blue")
-
+            
+            elif c == '-' and actual == inicio:
+                self.lexema += c
+                #transicion = f"{c},q2"
+                #self.add_diccionario('q2',transicion)
+            
             # q2 -> q3 con letra (letra)
             elif c.isalpha():
+                #transicion = f"{c},q3"
+                #self.add_diccionario('q2',transicion)
                 self.q3(actual,fin)
                 break
 
@@ -290,11 +322,22 @@ class Anality_CSS():
             # q4 -> q5 (letra | numero)
             if c == '#':
                 self.lexema += c
+
+                if(self.bandera == False and self.actibarBandera == True):
+                    transicion = f"{self.entrada[actual + 1]},q5"
+                    self.add_diccionario('q4',transicion)
+
                 self.q5(actual + 1,fin)
                 break
 
             # q4 -> q5 (letra | numero)
             elif c == '.':
+                self.lexema += c
+
+                if (self.bandera == False and self.actibarBandera == True):
+                    transicion = f"{self.entrada[actual + 1]},q5"
+                    self.add_diccionario('q4',transicion)
+        
                 self.q5(actual + 1,fin)
                 break
 
@@ -318,12 +361,32 @@ class Anality_CSS():
             # q5 -> q5 (letra)
             if c.isalpha():
                 self.lexema += c
+                
+                if (self.bandera == False and self.actibarBandera == True):
+                    transicion = f"{c},q5"
+                    self.add_diccionario('q5',transicion)
+
                 if(actual + 1 == fin):
                     self.add_tokken(TipoCSS.ID,self.lexema,"green")
+
+                    if(self.actibarBandera == True):
+                        self.bandera = True
+                        self.actibarBandera == False
+
             elif c.isnumeric():
                 self.lexema += c
+
+                if (self.bandera == False and self.actibarBandera == True):
+                    transicion = f"{c},q5"
+                    self.add_diccionario('q5',transicion)
+
                 if(actual +1 == fin):
                     self.add_tokken(TipoCSS.ID,self.lexema,"green")
+
+                    if(self.actibarBandera == True):
+                        self.bandera = True
+                        self.actibarBandera == False
+                
             elif c == '-':
                 self.lexema += c
                 if(actual +1 == fin):
@@ -421,3 +484,26 @@ class Anality_CSS():
         
         return ruta
         
+    def add_diccionario(self,clave,trancison):
+        listaTrancision = self.get_estadoDiccionario(clave)
+        if listaTrancision == None:
+            listaTrancision = list()
+            listaTrancision.append(trancison)
+        else:
+            listaTrancision.append(trancison)
+        
+        self.recorrido_automata[clave] = listaTrancision
+
+    def get_estadoDiccionario(self,clave):
+        for key,value in self.recorrido_automata.items():
+            if key == clave:
+                return value
+        return None
+    
+    def imprimir_listadoAutomata(self):
+        #self._reporte.genenarte_Graphivz(self.recorrido_automata)
+        self._reporte.reporteHTMLCSS(self.newEntrada,self.lista_error)
+        self.newEntrada = ''
+        #for key,value in self.recorrido_automata.items():
+            #for trancison in value:
+                #print(f"Estado a donde:{key}, transicion:{trancison}")
