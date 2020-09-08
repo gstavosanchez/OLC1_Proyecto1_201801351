@@ -17,6 +17,11 @@ class Report():
         texto = 'digraph G{ \n rankdir=LR; \n node[shape="circle",fontcolor="#832561",color="#B965AE"];\n %s \n %s \n}'%(bloqueUno,bloqueDos)
         print(texto)
 
+    def genearete_bitacora(self,dic_tranciones):
+        for kye,values in dic_tranciones.items():
+            for valor in values:
+                pass
+
     def solunionarError(self,texto,listaError):
         x = 0
         self.cActual = ''
@@ -48,7 +53,7 @@ class Report():
             bloqueUno += '\t \t<tr>\n \t \t \t<td>%s</td>\n \t \t \t<td>%s</td>\n \t \t \t<td>%s</td> \n \t \t </tr>\n \n'%(x,error.getLinea(),caracter)
             x += 1
         bloqueUno += '\t</table>\n'
-        bloqueDos += '\t<h2>Recuperacion de Error</h2>\n \t <p>%s<p>\n </br>\n </br>\n </br>\n </br>\n </br> \n \t <footer> \n \t \t <p><strong>Author: Elmer Gustavo Sanchez Garcia </strong></p>\n \t \t <p><a href="https://github.com/gstavosanchez/OLC1_Proyecto1_201801351"><em>Repo GitHub </em></a></p>\n \t </footer>'%(newTexto)
+        bloqueDos += '\t<h2>Recuperacion de Error</h2>\n \t <p>%s</p>\n </br>\n </br>\n </br>\n </br>\n </br> \n \t <footer> \n \t \t <p><strong>Author: Elmer Gustavo Sanchez Garcia </strong></p>\n \t \t <p><a href="https://github.com/gstavosanchez/OLC1_Proyecto1_201801351"><em>Repo GitHub </em></a></p>\n \t </footer>'%(newTexto)
         bloquePrincipal = '<!DOCTYPE html>\n <html lang="en">\n %s \n <body>\n <h1>Listado Errores lexicos</h1>\n %s \n %s \n </body>\n </html>\n'%(head,bloqueUno,bloqueDos)
 
         print(bloquePrincipal)

@@ -10,6 +10,7 @@ import msvcrt
 from CustomText import CustomText
 from Analizador import Analicis
 from AnalizadorCSS import Anality_CSS
+from AnalizadorHTML import Anality_HTML
 
 class Interface():
     def __init__(self,window):
@@ -32,6 +33,7 @@ class Interface():
         self.lexema = ""
         self.analizador = Analicis()
         self.analizadorCSS = Anality_CSS()
+        self.analizadorHTML = Anality_HTML()
         
         self.menu = Menu(self.wind) # Menu Bar
         self.file_item = Menu(self.menu,bg='#374140',activebackground = '#84407B', tearoff=0)
@@ -91,7 +93,10 @@ class Interface():
 
 
     def getTextHTML(self):
-        pass
+        self.txtConsola.delete("1.0","end")
+        entrada = self.textArea.get("1.0",END)
+
+        analizado  = self.analizadorHTML.read_caracter(entrada)
     
         
 
