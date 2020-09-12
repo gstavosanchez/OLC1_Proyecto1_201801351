@@ -114,7 +114,7 @@ class Anality_CSS():
 
 
         #self.imprimirToken()
-        self.imprimir_listadoAutomata()
+        #self.imprimir_listadoAutomata()
         return self.lista_error
 
     # ----------------->ESTADO Q2 <-------------------------------------- 
@@ -480,7 +480,13 @@ class Anality_CSS():
             if TipoCSS.COMENTARIO == valor.getTipoToken():
                 tokenValor =  valor.getValorToken()
                 if(tokenValor.find("PATHW")) != -1:
-                    ruta = tokenValor[tokenValor.find('c:'):tokenValor.find('*/')].strip()
+                    if(tokenValor.find("c:") != -1):
+                        ruta = tokenValor[tokenValor.find('c:'):tokenValor.find('*/')].strip()
+                        break
+                    elif (tokenValor.find("C:") != -1):
+                        ruta = tokenValor[tokenValor.find('C:'):tokenValor.find('*/')].strip()
+                        break
+                    
         
         return ruta
         

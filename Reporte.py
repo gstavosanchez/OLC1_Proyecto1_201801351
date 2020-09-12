@@ -42,18 +42,26 @@ class Report():
         return False
     
     def reporteHTMLCSS(self,texto,lista_Error):
-        print("esta en html <----->")
         x = 1
         newTexto = self.solunionarError(texto,lista_Error)
-        head = '<head> \n \t<meta charset="UTF-8">\n \t<meta name="viewport" content="width=device-width, initial-scale=1.0">\n \t<title>Report</title>\n</head>\n'
-        bloqueUno = '\t<table>\n \t \t <tr> \n \t \t \t <td><strong>No.</strong></td>\n \t \t \t <td><strong>Linea</strong></td>\n \t \t \t <td><strong>Caracter</strong></td> \n \t \t </tr>\n'
+        head = '<head> \n \t<meta charset="UTF-8">\n \t<meta name="viewport" content="width=device-width, initial-scale=1.0">\n \t<title>Report</title>\n \t <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/minty/bootstrap.min.css" integrity="sha384-H4X+4tKc7b8s4GoMrylmy2ssQYpDHoqzPa9aKXbDwPoPUA3Ra8PA5dGzijN+ePnH" crossorigin="anonymous">\n </head>\n'
+        bloqueUno = '\t<table class="table table-hover">\n \t \t <tr> \n \t \t \t <td scope="col"><strong>No.</strong></td>\n \t \t \t <td scope="col"><strong>Linea</strong></td>\n \t \t \t <td scope="col"><strong>Caracter</strong></td> \n \t \t </tr>\n'
         bloqueDos = ''
         for error in lista_Error:
             caracter = f"El carcter '{error.getCaracter()}' no pertenece al lenguaje."
-            bloqueUno += '\t \t<tr>\n \t \t \t<td>%s</td>\n \t \t \t<td>%s</td>\n \t \t \t<td>%s</td> \n \t \t </tr>\n \n'%(x,error.getLinea(),caracter)
+            bloqueUno += '\t \t<tr>\n \t \t \t<td scope="col">%s</td>\n \t \t \t<td>%s</td>\n \t \t \t<td>%s</td> \n \t \t </tr>\n \n'%(x,error.getLinea(),caracter)
             x += 1
         bloqueUno += '\t</table>\n'
         bloqueDos += '\t<h2>Recuperacion de Error</h2>\n \t <p>%s</p>\n </br>\n </br>\n </br>\n </br>\n </br> \n \t <footer> \n \t \t <p><strong>Author: Elmer Gustavo Sanchez Garcia </strong></p>\n \t \t <p><a href="https://github.com/gstavosanchez/OLC1_Proyecto1_201801351"><em>Repo GitHub </em></a></p>\n \t </footer>'%(newTexto)
         bloquePrincipal = '<!DOCTYPE html>\n <html lang="en">\n %s \n <body>\n <h1>Listado Errores lexicos</h1>\n %s \n %s \n </body>\n </html>\n'%(head,bloqueUno,bloqueDos)
 
         print(bloquePrincipal)
+        return bloquePrincipal
+
+    def writeReporte(self,ruta,texto,lista_error):
+        print(f"Generando Reporte en :{ruta}")
+        report = self.reporteHTMLCSS(texto,lista_error)
+        archivo  = open(f"{ruta}","a",encoding="utf-8")
+        report = f"{report}\n"
+        archivo.writelines(report)
+        archivo.close()

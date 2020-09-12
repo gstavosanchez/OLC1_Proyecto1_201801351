@@ -1,6 +1,7 @@
 from TokenHTML import TipoHTML
 from TokenHTML import TokenHTML
 from Error import Error_Lexico
+from Reporte import Report
 
 class Anality_HTML():
     lista_Tokens = list()
@@ -8,6 +9,8 @@ class Anality_HTML():
     linea = 1
     columna = 1
     lexema = ""
+    _reporte = Report()
+    newEntrada = ""
 
     def __init__(self):
         self.lista_Tokens = list()
@@ -15,8 +18,11 @@ class Anality_HTML():
         self.linea = 1
         self.columna = 1 
         self.lexema = ""
+        self._reporte = Report()
+        self.newEntrada = ""
 
     def read_caracter(self,texto):
+        self.newEntrada = texto
         self.entrada = texto + '$'
         self.cActual = ''
         
@@ -41,9 +47,6 @@ class Anality_HTML():
                 size_lexema = self.get_size_lexema(x)
                 self.q1(x,x+size_lexema)
                 x = x + size_lexema
-
-    
-            
                 
             elif self.cActual.isalpha() or self.cActual.isnumeric():
                 size_lexema = self.get_size_lexemaValor(x)
@@ -56,7 +59,7 @@ class Anality_HTML():
                 if self.cActual == "\n":
                     self.linea += 1
                     self.columna = 1 
-                    #print("Salto de linea principal")
+                    print("Salto de linea principal")
 
                 x += 1
                 self.columna += 1
@@ -71,8 +74,8 @@ class Anality_HTML():
             x += 1
             self.columna += 1
         
-        self.imprimir_token()
-        return True
+        #self.imprimir_token()
+        return self.lista_error
 
     
     def q1(self,actual,fin):
@@ -109,6 +112,7 @@ class Anality_HTML():
                     self.q2(actual+ 1,fin)
                     break
             else:
+                print(actual)
                 self.add_error(actual,self.linea,self.columna,c)
                 if (actual + 1 == fin):
                     self.add_token(TipoHTML.ID,self.lexema,"")
@@ -152,6 +156,31 @@ class Anality_HTML():
             
             actual += 1
 
+    def get_lexema(self,actual,fin):
+        poscicion = self.entrada[actual:fin].find(" ")
+        if(poscicion == -1):
+            return (self.entrada[actual:fin],'',actual)
+        else:
+            return (self.entrada[actual:poscicion],self.entrada[poscicion+1:fin],poscicion+1)
+
+    def get_pathComentario(self):
+        print("Analizando Comentario")
+        ruta = ''
+        for valor in self.lista_Tokens:
+            if TipoHTML.COMENTARIO == valor.getTipoToken():
+                tokenValor =  valor.getValorToken()
+                
+                posicion = tokenValor.find("PATHW")
+                if posicion != -1:
+                    if(tokenValor.find("c:") != -1):
+                        ruta = tokenValor[tokenValor.find('c:'):tokenValor.find('-->')].strip()
+                        break 
+                    elif(tokenValor.find("C:") != -1):
+                        ruta = tokenValor[tokenValor.find('C:'):tokenValor.find('-->')].strip()
+                        break
+        #print(ruta)
+        return ruta
+
             
 
 
@@ -163,8 +192,11 @@ class Anality_HTML():
         self.lexema = ""
     
     def add_error(self,posicion,linea,columna,caracter):
-        newError = Error_Lexico(posicion,linea,columna,caracter)
-        self.lista_error.append(newError)
+        if(caracter == '<' or caracter == '>'):
+            pass
+        else:
+            newError = Error_Lexico(posicion,linea,columna,caracter)
+            self.lista_error.append(newError)
         
 
 
@@ -180,10 +212,11 @@ class Anality_HTML():
     def get_size_lexema(self,incio):
         longitud = 0
         for j in range(incio,len(self.entrada) - 1):
+            if self.entrada[j] == "\n":
+                self.linea += 1
+                self.columna = 1
+                print(f"Salto de linea comentrio {self.linea} ")
             if self.entrada[j] == '>':
-                if self.entrada[j] == "\n":
-                    self.linea += 1
-                    self.columna = 1
                 break
             longitud += 1
         return longitud
@@ -191,10 +224,11 @@ class Anality_HTML():
     def get_size_lexemaComentario(self,incio):
         longitud = 0
         for j in range(incio,len(self.entrada) - 1):
+            if self.entrada[j] == "\n":
+                self.linea += 1
+                self.columna = 1
+                print(f"Salto de linea comentrio {self.linea} ")
             if self.entrada[j] == '-' and self.entrada[j+1] == '-' and self.entrada[j + 2] == '>':
-                if self.entrada[j] == "\n":
-                    self.linea += 1
-                    self.columna = 1
                 break
             longitud += 1
         return longitud
@@ -202,11 +236,27 @@ class Anality_HTML():
     def get_size_lexemaValor(self,inicio):
         longitud = 0
         for j in range(inicio,len(self.entrada) - 1):
+            if self.entrada[j] == "\n":
+                self.linea += 1
+                self.columna = 1
+                print(f"Salto de linea comentrio {self.linea} ")
             if self.entrada[j] == '<':
-                if self.entrada[j] == "\n":
-                    self.linea += 1
-                    self.columna = 1
                 break
             longitud += 1
         return longitud
     
+    
+    def enviarReporte(self,ruta):
+        #self.reporte.writeReporte(ruta,self.newEntrada,self.lista_error)
+        print("Enviar Reporte")
+        self._reporte.writeReporte(ruta,self.newEntrada,self.lista_error)
+
+    def limpiarCaracter(self):
+        self.cActual = ''
+        self.lexema = ""
+        self.lista_Tokens = list()
+        self.lista_error = list()
+        self.linea = 1
+        self.columna = 1
+        self.entrada = ''
+        print('se limpio el carcater')

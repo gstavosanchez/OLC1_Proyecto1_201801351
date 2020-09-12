@@ -2,10 +2,12 @@ from tkinter import filedialog
 from tkinter import ttk
 from tkinter import *
 from tkinter import scrolledtext
+from tkinter import messagebox
 from io import open
 import os
 import sys
 import msvcrt
+
 
 from CustomText import CustomText
 from Analizador import Analicis
@@ -15,6 +17,7 @@ from AnalizadorHTML import Anality_HTML
 class Interface():
     def __init__(self,window):
         self.wind = window
+        self.rutaHTML = ''
         self.wind.title('Analysis Application')
         self.wind.geometry("1000x700")
         self.wind.configure(bg = '#0A010B')
@@ -39,6 +42,11 @@ class Interface():
         self.file_item = Menu(self.menu,bg='#374140',activebackground = '#84407B', tearoff=0)
         self.file_item.add_command(label = 'Open File...',command=self.open_File)
         
+
+        self.file_item.add_separator()
+        self.file_item.add_command(label = 'Save As JS',command=self.generar_reportJS)
+        self.file_item.add_command(label = 'Save As CSS',command=self.generar_reportCSS)
+        self.file_item.add_command(label = 'Save As HTML',command=self.generar_reportHTML)
 
         self.file_item.add_separator()
         self.file_item.add_command(label = 'Exit',command=self.exit_program)
@@ -97,10 +105,14 @@ class Interface():
         entrada = self.textArea.get("1.0",END)
 
         analizado  = self.analizadorHTML.read_caracter(entrada)
+        self.setConsolaHTML(analizado)
+        #self.analizadorHTML.limpiarCaracter()
+        
+        # ---------------------------
     
         
-
-        
+ 
+    
     def setConsola(self,errores):
         self.txtConsola.insert("2.0","")
         texto = ''
@@ -117,6 +129,13 @@ class Interface():
             texto += f"Error in [ Ln {value.getLinea()} ] , Carcater:{value.getCaracter()} \n"
         self.txtConsola.insert("2.0",texto)
 
+
+    def setConsolaHTML(self,listaError):
+        self.txtConsola.delete("1.0","end")
+        texto = ""
+        for value in listaError:
+            texto += f"Error in [ Ln {value.getLinea()}, Pos {value.getPosicion()} ] , Carcater:{value.getCaracter()} \n"
+        self.txtConsola.insert("2.0",texto)
     
     def color_sintaxisJS(self,palabra):
         listaToken = self.analizador.getListTokens()
@@ -124,9 +143,10 @@ class Interface():
             if palabra == valor.getValorToken():
                 #print(f"token {valor.getValorToken()},color {valor.getColorToken()}")
                 self.textArea.highlight_pattern(palabra, valor.getColorToken())
+    
+
         
-    
-    
+
     def open_File(self):
         try:
             ruta =  ""
@@ -154,6 +174,50 @@ class Interface():
         except (FileNotFoundError, IOError):
             print("Error en la lectura")
     
+    #--------------->Metodo Guardar Reporte<--------------------------------
+
+    def generar_reportJS(self):
+        pass
+    def generar_reportHTML(self):
+        ruta = self.analizadorHTML.get_pathComentario()
+        if ruta != ''  and ruta != ' ':
+            self.show_windowAux(ruta)
+            
+        else:
+            messagebox.showwarning("ERROR","No se encontro la ruta")
+        
+
+    def generar_reportCSS(self):
+        pass
+
+
+    def show_windowAux(self,ruta):
+        self.windowAux = Tk()
+        self.windowAux.title("Confirmar")
+        self.windowAux.geometry('200x120')
+
+        l1 = Label(self.windowAux,text='Ruta',font=(14))
+        l1.grid(row = 0,column = 0)
+
+        entradaTxt = Entry(self.windowAux,font=(14))
+        entradaTxt.grid(row = 1,column = 0,padx = 5,pady = 5)
+        entradaTxt.insert(0,ruta)
+        
+        
+        button = Button(self.windowAux,text=" Ok ",font=(14), command = lambda: self.setRutaHTML(f"{entradaTxt.get()}"))
+        button.grid(row=2,column = 0)        
+
+        self.windowAux.mainloop()
+
+    def setRutaHTML(self,ruta):
+        self.rutaHTML = ruta
+        print(self.rutaHTML)
+        self.windowAux.destroy()
+        self.analizadorHTML.enviarReporte(self.rutaHTML)
+        
+        
+
+    #-------------------------><--------------------------------
     
     def exit_program(self):
         sys.exit()
@@ -309,5 +373,7 @@ class Interface():
         self.lexema = ""  
         #print(self.entrada[actual:fin])
         return (self.entrada[actual:fin])
+
+
 
     

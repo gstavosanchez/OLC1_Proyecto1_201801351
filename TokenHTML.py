@@ -8,7 +8,7 @@ class TipoHTML(Enum):
     IGUAL = 3
     
     
-
+    RESERVADA = 4
 
 
     #Expresiones Regular
