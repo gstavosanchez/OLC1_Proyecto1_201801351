@@ -1,7 +1,8 @@
+import sys
+
 class Report():
     def __init__(self):
         pass
-
 
     def genenarte_Graphivz(self,dic_tranciones):
         bloqueUno = "R[shape=point] \n"
@@ -55,13 +56,17 @@ class Report():
         bloqueDos += '\t<h2>Recuperacion de Error</h2>\n \t <p>%s</p>\n </br>\n </br>\n </br>\n </br>\n </br> \n \t <footer> \n \t \t <p><strong>Author: Elmer Gustavo Sanchez Garcia </strong></p>\n \t \t <p><a href="https://github.com/gstavosanchez/OLC1_Proyecto1_201801351"><em>Repo GitHub </em></a></p>\n \t </footer>'%(newTexto)
         bloquePrincipal = '<!DOCTYPE html>\n <html lang="en">\n %s \n <body>\n <h1>Listado Errores lexicos</h1>\n %s \n %s \n </body>\n </html>\n'%(head,bloqueUno,bloqueDos)
 
-        print(bloquePrincipal)
+        #print(bloquePrincipal)
         return bloquePrincipal
 
     def writeReporte(self,ruta,texto,lista_error):
-        print(f"Generando Reporte en :{ruta}")
-        report = self.reporteHTMLCSS(texto,lista_error)
-        archivo  = open(f"{ruta}","a",encoding="utf-8")
-        report = f"{report}\n"
-        archivo.writelines(report)
-        archivo.close()
+        #print(f"Generando Reporte en :{ruta}")
+        try:
+            report = self.reporteHTMLCSS(texto,lista_error)
+            archivo  = open(f"{ruta}","a",encoding="utf-8")
+            report = f"{report}\n"
+            archivo.writelines(report)
+            archivo.close()
+        except OSError as e:
+            print("Os error:{0}".format(e))
+        

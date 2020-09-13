@@ -13,6 +13,8 @@ from CustomText import CustomText
 from Analizador import Analicis
 from AnalizadorCSS import Anality_CSS
 from AnalizadorHTML import Anality_HTML
+from AnalizadorSintac import Sintactico
+
 
 class Interface():
     def __init__(self,window):
@@ -26,17 +28,21 @@ class Interface():
         self.play_button = PhotoImage(file = 'resource/js.png')
         self.play_css = PhotoImage(file = 'resource/css.png')
         self.play_html = PhotoImage(file = 'resource/HTML.png')
+        self.play_sintactico = PhotoImage(file = 'resource/inv.png')
         self.play_button = self.play_button.subsample(10,10)
         self.play_css = self.play_css.subsample(10,10)
         self.play_html = self.play_html.subsample(10,10)
+        self.play_sintactico = self.play_sintactico.subsample(10,10)
         self.buttonOk = Button(self.wind,image = self.play_button, command = self.getText, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
         self.buttonOkCSS = Button(self.wind,image = self.play_css, command = self.getTextCSS, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
         self.buttonOkHTML = Button(self.wind,image = self.play_html, command = self.getTextHTML, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
+        self.buttonOkSINT = Button(self.wind,image = self.play_sintactico, command = self.getTextSINT, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
 
         self.lexema = ""
         self.analizador = Analicis()
         self.analizadorCSS = Anality_CSS()
         self.analizadorHTML = Anality_HTML()
+        self.analizadorSINT = Sintactico()
         
         self.menu = Menu(self.wind) # Menu Bar
         self.file_item = Menu(self.menu,bg='#374140',activebackground = '#84407B', tearoff=0)
@@ -76,6 +82,7 @@ class Interface():
         self.buttonOk.place(x = 900, y =15)
         self.buttonOkCSS.place(x = 900, y = 80)
         self.buttonOkHTML.place(x = 900, y = 145)
+        self.buttonOkSINT.place(x = 900, y = 210)
         
 
     def getText(self):
@@ -96,7 +103,7 @@ class Interface():
 
         analizado = self.analizadorCSS.read_caracter(entrada)
         self.setConsolaCSS(analizado)
-        self.analizadorCSS.limpiarCarcateres()
+        #self.analizadorCSS.limpiarCarcateres()
 
 
 
@@ -107,8 +114,14 @@ class Interface():
         analizado  = self.analizadorHTML.read_caracter(entrada)
         self.setConsolaHTML(analizado)
         #self.analizadorHTML.limpiarCaracter()
+
+    def getTextSINT(self):
+        entrada = ''
+        self.txtConsola.delete("1.0","end")
+        entrada = self.textArea.get("1.0",END)
+        self.analizadorSINT.q0(entrada)
         
-        # ---------------------------
+        # ------------------------------------------------------------------------------------------------
     
         
  
@@ -181,42 +194,65 @@ class Interface():
     def generar_reportHTML(self):
         ruta = self.analizadorHTML.get_pathComentario()
         if ruta != ''  and ruta != ' ':
-            self.show_windowAux(ruta)
+            self.show_windowAux(ruta,'html')
             
         else:
             messagebox.showwarning("ERROR","No se encontro la ruta")
         
 
     def generar_reportCSS(self):
-        pass
+        ruta = self.analizadorCSS.get_pathComenatrio()
+        if ruta != ''  and ruta != ' ':
+            self.show_windowAux(ruta,'css')
+        else:
+            messagebox.showwarning("ERROR","No se encontro la ruta")
 
 
-    def show_windowAux(self,ruta):
+    def show_windowAux(self,ruta,tipo):
+        #Configuracion de la ventana
         self.windowAux = Tk()
         self.windowAux.title("Confirmar")
         self.windowAux.geometry('200x120')
+        self.windowAux.configure(bg = '#0A010B')
 
-        l1 = Label(self.windowAux,text='Ruta',font=(14))
+        #Configuaracoin del label
+        l1 = Label(self.windowAux,text='Ruta',font=(14),bg ="#0A010B",foreground = "#FFFFFF")
         l1.grid(row = 0,column = 0)
 
-        entradaTxt = Entry(self.windowAux,font=(14))
+        #Configuracion del TextBox
+        entradaTxt = Entry(self.windowAux,font=(14), bg ="#453B46",foreground = "#FFFFFF")
         entradaTxt.grid(row = 1,column = 0,padx = 5,pady = 5)
         entradaTxt.insert(0,ruta)
         
+        #Configuracion del boton
+        button = Button()
+        if (tipo == 'js'):
+            button = Button(self.windowAux,text=" Ok",bg ="#231129",foreground = "#FFFFFF",font=(14), command = lambda: self.setRutaHTML(f"{entradaTxt.get()}"))
+        elif(tipo == 'css'):
+            button = Button(self.windowAux,text=" Ok",bg ="#231129",foreground = "#FFFFFF",font=(14), command = lambda: self.setRutaCSS(f"{entradaTxt.get()}"))
+        elif(tipo == 'html'):
+            button = Button(self.windowAux,text=" Ok",bg ="#231129",foreground = "#FFFFFF",font=(14), command = lambda: self.setRutaHTML(f"{entradaTxt.get()}"))
+    
         
-        button = Button(self.windowAux,text=" Ok ",font=(14), command = lambda: self.setRutaHTML(f"{entradaTxt.get()}"))
         button.grid(row=2,column = 0)        
-
         self.windowAux.mainloop()
 
     def setRutaHTML(self,ruta):
         self.rutaHTML = ruta
-        print(self.rutaHTML)
         self.windowAux.destroy()
         self.analizadorHTML.enviarReporte(self.rutaHTML)
-        
-        
+        self.rutaHTML = ''
+        self.analizadorHTML.limpiarCaracter()
 
+    
+    def setRutaCSS(self,ruta):
+        self.rutaHTML = ruta
+        self.windowAux.destroy()
+        self.analizadorCSS.enviarReporte(self.rutaHTML)
+        self.rutaHTML = ''
+        self.analizadorCSS.limpiarCarcateres()
+
+   
     #-------------------------><--------------------------------
     
     def exit_program(self):

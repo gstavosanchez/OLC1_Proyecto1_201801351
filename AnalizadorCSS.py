@@ -1,5 +1,7 @@
 from TokenCSS import TipoCSS
 from TokenCSS import TokenCSS
+from datetime import datetime
+
 from Error import Error_Lexico
 from Reporte import Report
 
@@ -14,6 +16,8 @@ class Anality_CSS():
     actibarBandera = False
     recorrido_automata = {}
     _reporte = Report()
+    bitacora = ""
+    now = datetime.now()
 
     def __init__(self):
         self.lista_Tokens = list()
@@ -25,8 +29,11 @@ class Anality_CSS():
         self.actibarBandera = False
         self.recorrido_automata = {}
         self._reporte = Report()
+        self.now = datetime.now()
+        self.bitacora = ""
 
     def read_caracter(self,texto):
+        self.bitacora = f"---------->Bitacora CSS <---------- [{self.getTime()}] \n"
         self.entrada = texto + '$'
         self.caracterActual = ''
         self.newEntrada = texto
@@ -77,6 +84,10 @@ class Anality_CSS():
             elif self.caracterActual == '#' or self.caracterActual == '.':
                 if (self.bandera == False):
                     self.actibarBandera = True
+
+                    _trasBitacora = f"[q0 -> q4;{self.caracterActual}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
+
                     transicion = f"{self.caracterActual},q4"
                     self.add_diccionario('q0',transicion)
                     
@@ -97,7 +108,7 @@ class Anality_CSS():
                 if self.caracterActual == "\n":
                     self.linea += 1
                     self.columna = 1 
-                    print("Salto de linea principal")
+                    #print("Salto de linea principal")
 
                 x += 1
                 self.columna += 1
@@ -113,8 +124,7 @@ class Anality_CSS():
             self.columna += 1
 
 
-        #self.imprimirToken()
-        #self.imprimir_listadoAutomata()
+        
         return self.lista_error
 
     # ----------------->ESTADO Q2 <-------------------------------------- 
@@ -324,6 +334,9 @@ class Anality_CSS():
                 self.lexema += c
 
                 if(self.bandera == False and self.actibarBandera == True):
+                    _trasBitacora = f"[q4 -> q5;{self.entrada[actual + 1]}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
+
                     transicion = f"{self.entrada[actual + 1]},q5"
                     self.add_diccionario('q4',transicion)
 
@@ -335,6 +348,9 @@ class Anality_CSS():
                 self.lexema += c
 
                 if (self.bandera == False and self.actibarBandera == True):
+                    _trasBitacora = f"[q4 -> q5;{self.entrada[actual + 1]}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
+
                     transicion = f"{self.entrada[actual + 1]},q5"
                     self.add_diccionario('q4',transicion)
         
@@ -363,6 +379,8 @@ class Anality_CSS():
                 self.lexema += c
                 
                 if (self.bandera == False and self.actibarBandera == True):
+                    _trasBitacora = f"[q5 -> q5;{c}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
                     transicion = f"{c},q5"
                     self.add_diccionario('q5',transicion)
 
@@ -377,6 +395,8 @@ class Anality_CSS():
                 self.lexema += c
 
                 if (self.bandera == False and self.actibarBandera == True):
+                    _trasBitacora = f"[q5 -> q5;{c}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
                     transicion = f"{c},q5"
                     self.add_diccionario('q5',transicion)
 
@@ -411,11 +431,11 @@ class Anality_CSS():
     def get_size_lexema_asterisco(self,incio):
         longitud = 0
         for j in range(incio,len(self.entrada) - 1):
+            if self.entrada[j] == "\n":
+                self.linea += 1
+                self.columna = 1
+                #print("Salto de linea get_size_lexema")
             if self.entrada[j] == " " or self.entrada[j] == "," or self.entrada[j] == ';' or self.entrada[j] == ':' or self.entrada[j] == "\n" or self.entrada[j] == '<' or self.entrada[j] == '>' or self.entrada[j] == '{' or self.entrada[j] == '}' or self.entrada[j] == "\t" or self.entrada == "\r":
-                if self.entrada[j] == "\n":
-                    self.linea += 1
-                    self.columna = 1
-                    print("Salto de linea get_size_lexema")
                 break
             longitud += 1
         return longitud
@@ -423,11 +443,10 @@ class Anality_CSS():
     def get_size_lexema_comentario(self,incio):
         longitud = 0
         for j in range(incio,len(self.entrada) - 1):
-        #while inicio < len(self.entrada):
             if self.entrada[j] == "\n":
                 self.linea += 1
                 self.columna = 1
-                print("Salto de linea comentraio")
+                #print("Salto de linea comentraio")
             if self.entrada[j] == "*" and self.entrada[j + 1] == '/':
                 break
             longitud += 1
@@ -437,12 +456,11 @@ class Anality_CSS():
     def get_lexema(self,inicio,fin):
         palabra = ""
         for x in range(inicio,fin):
+            palabra += self.entrada[x]
             if self.entrada[x] == "\n":
                 self.linea += 1
                 self.columna = 1
                 print("Salto de linea en get_lexema")
-
-            palabra += self.entrada[x]
             self.columna += 1
         return palabra.lower()
 
@@ -474,7 +492,7 @@ class Anality_CSS():
         self.lista_Tokens = list()
         self.lista_error = list()
 
-    def ruta_comentario(self):
+    def get_pathComenatrio(self):
         ruta = ''
         for valor in self.lista_Tokens:                
             if TipoCSS.COMENTARIO == valor.getTipoToken():
@@ -506,10 +524,26 @@ class Anality_CSS():
                 return value
         return None
     
-    def imprimir_listadoAutomata(self):
+    def enviarReporte(self,ruta):
         #self._reporte.genenarte_Graphivz(self.recorrido_automata)
-        self._reporte.reporteHTMLCSS(self.newEntrada,self.lista_error)
+        self._reporte.writeReporte(ruta,self.newEntrada,self.lista_error)
         self.newEntrada = ''
-        #for key,value in self.recorrido_automata.items():
-            #for trancison in value:
-                #print(f"Estado a donde:{key}, transicion:{trancison}")
+        
+    def getTime(self):
+        time = ""
+        time = f"{self.getHora()} - {self.now.day}/{self.now.month}/{self.now.year}"
+        return time
+
+    def getBitacora(self):
+        return self.bitacora
+    
+    def getHora(self):
+        time = ""
+        minuto = self.now.minute
+        if (minuto <= 9):
+            minuto = f"0{self.now.minute}"
+            time = f"{self.now.hour}:{minuto}.{self.now.second} "
+        else:
+            time = f"{self.now.hour}:{self.now.minute}.{self.now.second} "
+
+        return time
