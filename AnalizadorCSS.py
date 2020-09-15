@@ -12,8 +12,6 @@ class Anality_CSS():
     linea = 1
     columna = 1
     lexema = ""
-    bandera = False
-    actibarBandera = False
     recorrido_automata = {}
     _reporte = Report()
     bitacora = ""
@@ -25,8 +23,6 @@ class Anality_CSS():
         self.linea = 1
         self.columna = 1
         self.lexema = ""
-        self.bandera = False
-        self.actibarBandera = False
         self.recorrido_automata = {}
         self._reporte = Report()
         self.now = datetime.now()
@@ -61,18 +57,41 @@ class Anality_CSS():
                 self.add_tokken(TipoCSS.PCOMA,';',"")
             
             elif self.caracterActual.isnumeric():
+                #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[q0 -> q2;{self.caracterActual}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #--------------------------------------------------------------------------
+
                 size_lexema = self.get_size_lexema_asterisco(x)
                 self.q2(x,x +size_lexema)
                 x = x + size_lexema
 
             elif self.caracterActual.isalpha():
+                #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[q0 -> q4;{self.caracterActual}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #-------------------------------------------------------------------------
                 size_lexema = self.get_size_lexema_asterisco(x)
                 self.q4(x, x+ size_lexema)
                 x = x + size_lexema
 
             elif self.caracterActual == '/' and self.entrada[x + 1] == '*':
                 size_lexema = self.get_size_lexema_comentario(x)
+                 #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[q0 - q7 ;{self.caracterActual}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+
+                 #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[q0 -> q8 ;{self.entrada[x + 1]}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #-------------------------------------------------------------------------
+                #-------------------------------------------------------------------------
                 if (x + size_lexema + 2  <=   len(self.entrada)):
+                    #-------------------Agregar bitacora--------------------------------------
+                    _trasBitacora = f"[q8 -> q6 ;{self.entrada[x + 2]}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
+                    #-------------------------------------------------------------------------
+
                     self.q6(x,x +size_lexema+2)
                     x = x + size_lexema + 2  # PENDIENTE DE REVISAR URGE PORNER MAS size_lexema +2
                 else:
@@ -82,16 +101,11 @@ class Anality_CSS():
                     break
 
             elif self.caracterActual == '#' or self.caracterActual == '.':
-                if (self.bandera == False):
-                    self.actibarBandera = True
-
-                    _trasBitacora = f"[q0 -> q4;{self.caracterActual}] - [{self.getHora()}] \n"
-                    self.bitacora += _trasBitacora
-
-                    transicion = f"{self.caracterActual},q4"
-                    self.add_diccionario('q0',transicion)
-                    
-
+                #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[q0 -> q4;{self.caracterActual}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #-----------------------------------------------------------------------------
+                
                 size_lexema = self.get_size_lexema_asterisco(x)
                 self.q4(x, x+ size_lexema)
                 x = x + size_lexema
@@ -124,7 +138,7 @@ class Anality_CSS():
             self.columna += 1
 
 
-        
+        print(self.bitacora)
         return self.lista_error
 
     # ----------------->ESTADO Q2 <-------------------------------------- 
@@ -140,26 +154,48 @@ class Anality_CSS():
                 self.lexema += c
                 #transicion = f"{c},q2"
                 #self.add_diccionario('q2',transicion)
+                _trasBitacora = f"[q2 -> q2;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+
                 if (actual + 1 == fin):
                     self.add_tokken(TipoCSS.VALOR,self.lexema,"blue")
+
+                    _trasBitacora = f"[Acepatado ;{self.lexema}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
 
             # q2 -> q2 con  % (%)
             elif c == '%':
                 self.lexema += c
                 #transicion = f"{c},q7"
                 #self.add_diccionario('q2',transicion)
+                _trasBitacora = f"[q2 -> q2;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+
                 if (actual + 1 == fin):
                     self.add_tokken(TipoCSS.VALOR,self.lexema,"blue")
+
+                    _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
+
             # q2 -> q2 con . (.)
             elif c == '.':
                 self.lexema += c
                 #transicion = f"{c},q2"
                 #self.add_diccionario('q2',transicion)
+                _trasBitacora = f"[q2 -> q2;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+
                 if (actual + 1 == fin):
                     self.add_tokken(TipoCSS.VALOR,self.lexema,"blue")
+
+                    _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
             
             elif c == '-' and actual == inicio:
                 self.lexema += c
+
+                _trasBitacora = f"[q2 -> q2;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
                 #transicion = f"{c},q2"
                 #self.add_diccionario('q2',transicion)
             
@@ -167,6 +203,9 @@ class Anality_CSS():
             elif c.isalpha():
                 #transicion = f"{c},q3"
                 #self.add_diccionario('q2',transicion)
+                _trasBitacora = f"[q2 -> q3;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+
                 self.q3(actual,fin)
                 break
 
@@ -186,8 +225,13 @@ class Anality_CSS():
             # q3 -> q3 con letra (letra)
             if c.isalpha():
                 self.lexema += c
+                _trasBitacora = f"[q3 -> q3;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+
                 if (actual + 1 == fin):
                     self.add_tokken(TipoCSS.VALOR,self.lexema,"blue")
+                    _trasBitacora = f"[Acepatado ;{self.lexema}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
             else:
                 #Caracter No Reconocido
                 self.add_error(actual,self.linea,self.columna,c)            
@@ -205,7 +249,15 @@ class Anality_CSS():
         while actual < fin:
             c = self.entrada[actual];
             self.lexema += c
+             #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[q6 -> q6 ;{c}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #-------------------------------------------------------------------------
             if (actual +1 == fin):
+                #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #-------------------------------------------------------------------------
                 self.add_tokken(TipoCSS.COMENTARIO,self.lexema,"gray")
             self.columna += 1
             actual += 1
@@ -216,114 +268,257 @@ class Anality_CSS():
         self.lexema = self.get_lexema(actual,fin)
 
         if self.lexema == "color":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.COLOR,'color','red')
             return
         elif self.lexema == "border":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.BORDER,"border","red")
             return
         elif self.lexema == "text-align":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.TEXT_ALIGN,"text-align","red")
             return
         elif self.lexema == "font-weight":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.FONT_WEIGHT,"font-weight","red")
             return
         elif self.lexema == "padding-left":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.PADDING_LEFT,"padding-left","red")
             return
         elif self.lexema == "padding-top":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.PADDING_TOP,"padding-top","red")
             return
         elif self.lexema == "line-height":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.LINE_HEIGHT,"line-height","red")
             return
         elif self.lexema == "margin-top":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.MARGIN_TOP,"margin-top","red")
             return
         elif self.lexema == "margin-left":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.MARGIN_LEFT,"margin-left","red")
             return
         elif self.lexema == "display":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.DISPLAY,"display","red")
             return
         elif self.lexema == "top":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.TOP,"top","red")
             return
         elif self.lexema == "float":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.FLOAT,"float","red")
             return
         elif self.lexema == "min-width":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.MIN_WIDTH,"min-width","red")
             return
         elif self.lexema == "background-color":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.BACKGROUND_COLOR,"background-color","red")
             return 
         elif self.lexema == "background":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.BACKGROUND,"background","red")
             return
         elif self.lexema == "font-family":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.FONT_FAMILY,"font-family","red")
             return
         elif self.lexema == "font-size":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.FONT_SIZE,"font-size","red")
             return
         elif self.lexema == "padding-right":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.PADDING_RIGHT,"padding-right","red")
             return
         elif self.lexema == "padding":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.PADDING,"padding","red")
             return
         elif self.lexema == "width":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.WIDTH,"width","red")
             return
         elif self.lexema == "margin-right":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.MARGIN_RIGHT,"margin-right","red")
             return
         elif self.lexema == "margin":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.MARGIN,"margin","red")
             return
         elif self.lexema == "bottom":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.BOTTOM,"bottom","red")
             return
         elif self.lexema == "right":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.RIGHT,"right","red")
             return
         elif self.lexema == "clear":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.CLEAR,"clear","red")
             return
         elif self.lexema == "max-height":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.MAX_HEIGHT,"max-height","red")
             return 
         elif self.lexema == "background-image":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.BACKGROUND_IMAGE,"background-image","red")
             return
         elif self.lexema == "font-style":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.FONT_STYLE,"font-style","red")
             return
         elif self.lexema == "font":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.FONT,"font","red")
             return 
         elif self.lexema == "padding-bottom":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.PADDING_BOTTOM,"padding-bottom","red")
             return 
         elif self.lexema == "margin-bottom":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.MARGIN_BOTTOM,"margin-bottom","red")
             return 
         elif self.lexema == "border-style":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.BORDER_STYLE,"border-style","red")
             return
         elif self.lexema == "position":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.POSITION,"position","red")
             return
         elif self.lexema == "left":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.LEFT,"left","red")
             return
         elif self.lexema == "max-width":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.MAX_WIDTH,"max-width","red")
             return
         elif self.lexema == "min-height":
+            #-------------------Agregar bitacora--------------------------------------
+            _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
+            #--------------------------------------------------------------------------
             self.add_tokken(TipoCSS.MIN_HEIGHT,"min-height","red")
             return
-
 
         self.lexema = ""
         c = ''
@@ -332,28 +527,20 @@ class Anality_CSS():
             # q4 -> q5 (letra | numero)
             if c == '#':
                 self.lexema += c
-
-                if(self.bandera == False and self.actibarBandera == True):
-                    _trasBitacora = f"[q4 -> q5;{self.entrada[actual + 1]}] - [{self.getHora()}] \n"
-                    self.bitacora += _trasBitacora
-
-                    transicion = f"{self.entrada[actual + 1]},q5"
-                    self.add_diccionario('q4',transicion)
-
+                #-------------------Agregar bitacora-----------------------------------------------
+                _trasBitacora = f"[q4 -> q5;{self.entrada[actual + 1]}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #----------------------------------------------------------------------------------
                 self.q5(actual + 1,fin)
                 break
 
             # q4 -> q5 (letra | numero)
             elif c == '.':
                 self.lexema += c
-
-                if (self.bandera == False and self.actibarBandera == True):
-                    _trasBitacora = f"[q4 -> q5;{self.entrada[actual + 1]}] - [{self.getHora()}] \n"
-                    self.bitacora += _trasBitacora
-
-                    transicion = f"{self.entrada[actual + 1]},q5"
-                    self.add_diccionario('q4',transicion)
-        
+                #-------------------Agregar bitacora---------------------------------------------------
+                _trasBitacora = f"[q4 -> q5;{self.entrada[actual + 1]}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #------------------------------------------------------------------------------------
                 self.q5(actual + 1,fin)
                 break
 
@@ -367,7 +554,9 @@ class Anality_CSS():
             actual += 1
             self.columna += 1
 
-
+    # terminar de componer 
+    #
+    #
     # --------------------------> <--------------------------------------
     # ----------------->ESTADO Q5 <--------------------------------------
     def q5(self,actual,fin):
@@ -377,44 +566,62 @@ class Anality_CSS():
             # q5 -> q5 (letra)
             if c.isalpha():
                 self.lexema += c
-                
-                if (self.bandera == False and self.actibarBandera == True):
-                    _trasBitacora = f"[q5 -> q5;{c}] - [{self.getHora()}] \n"
-                    self.bitacora += _trasBitacora
-                    transicion = f"{c},q5"
-                    self.add_diccionario('q5',transicion)
+                #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[q5 -> q5;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #----------------------------------------------------------------------------
 
                 if(actual + 1 == fin):
+                    #-------------------Agregar bitacora--------------------------------------
+                    _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
+                    #-------------------------------------------------------------------------
                     self.add_tokken(TipoCSS.ID,self.lexema,"green")
 
-                    if(self.actibarBandera == True):
-                        self.bandera = True
-                        self.actibarBandera == False
 
             elif c.isnumeric():
                 self.lexema += c
-
-                if (self.bandera == False and self.actibarBandera == True):
-                    _trasBitacora = f"[q5 -> q5;{c}] - [{self.getHora()}] \n"
-                    self.bitacora += _trasBitacora
-                    transicion = f"{c},q5"
-                    self.add_diccionario('q5',transicion)
+                #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[q5 -> q5;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #-----------------------------------------------------------------------
 
                 if(actual +1 == fin):
+                    #-------------------Agregar bitacora--------------------------------------
+                    _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
+                    #-------------------------------------------------------------------------
                     self.add_tokken(TipoCSS.ID,self.lexema,"green")
 
-                    if(self.actibarBandera == True):
-                        self.bandera = True
-                        self.actibarBandera == False
+            
                 
             elif c == '-':
                 self.lexema += c
+
+                #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[q5 -> q5 ;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #-------------------------------------------------------------------------
                 if(actual +1 == fin):
+                    #-------------------Agregar bitacora--------------------------------------
+                    _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
+                    #-------------------------------------------------------------------------
+
                     self.add_tokken(TipoCSS.ID,self.lexema,"green")
             # q5 -> q4 (#)
             elif c == '#' or c == '(' or c == ')' or c == '"' or c == '.'  or  c == '/':
                 self.lexema += c
+
+                 #-------------------Agregar bitacora--------------------------------------
+                _trasBitacora = f"[q5 -> q5 ;{c}] - [{self.getHora()}] \n"
+                self.bitacora += _trasBitacora
+                #-------------------------------------------------------------------------
                 if(actual +1 == fin):
+                    #-------------------Agregar bitacora--------------------------------------
+                    _trasBitacora = f"[Aceptado ;{self.lexema}] - [{self.getHora()}] \n"
+                    self.bitacora += _trasBitacora
+                    #-------------------------------------------------------------------------
                     self.add_tokken(TipoCSS.ID,self.lexema,"green")
                 
             else:
@@ -457,6 +664,8 @@ class Anality_CSS():
         palabra = ""
         for x in range(inicio,fin):
             palabra += self.entrada[x]
+            _trasBitacora = f"[q4 -> q4 ;{palabra}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
             if self.entrada[x] == "\n":
                 self.linea += 1
                 self.columna = 1
@@ -475,6 +684,8 @@ class Anality_CSS():
         if(caracter == '/' or caracter == '*' or caracter == '{' or caracter == '}' or caracter == '"' or caracter == ';' or caracter == ':' or caracter == ',' or caracter == '<' or caracter == '>' or caracter == '(' or caracter == ')'):
             pass
         else:
+            _trasBitacora = f"[NO Aceptado ;{caracter}] - [{self.getHora()}] \n"
+            self.bitacora += _trasBitacora
             newError = Error_Lexico(posicion,linea,columna,caracter)
             self.lista_error.append(newError)
 
@@ -508,21 +719,7 @@ class Anality_CSS():
         
         return ruta
         
-    def add_diccionario(self,clave,trancison):
-        listaTrancision = self.get_estadoDiccionario(clave)
-        if listaTrancision == None:
-            listaTrancision = list()
-            listaTrancision.append(trancison)
-        else:
-            listaTrancision.append(trancison)
-        
-        self.recorrido_automata[clave] = listaTrancision
 
-    def get_estadoDiccionario(self,clave):
-        for key,value in self.recorrido_automata.items():
-            if key == clave:
-                return value
-        return None
     
     def enviarReporte(self,ruta):
         #self._reporte.genenarte_Graphivz(self.recorrido_automata)

@@ -152,7 +152,6 @@ class Analicis():
         c = ''
         while actual < fin:
             c = self.entrada[actual]
-
             if c.isnumeric():
                 self.lexema += c
                 if(actual + 1 == fin):

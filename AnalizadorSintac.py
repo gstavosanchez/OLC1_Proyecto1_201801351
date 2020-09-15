@@ -4,6 +4,7 @@ class Sintactico():
     pop_pila = ''
     entrada = ''
     lista_Token = list()
+    
     def __init__(self):
         self.listado_tokens = list()
         self.pila = list()

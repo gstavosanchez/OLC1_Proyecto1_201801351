@@ -180,10 +180,7 @@ class Anality_HTML():
                         break
         #print(ruta)
         return ruta
-
             
-
-
 
     def add_token(self,tipo,valor,color):
         nuevo = TokenHTML(tipo,valor,color)
@@ -207,8 +204,6 @@ class Anality_HTML():
 
 
     
-
-
     def get_size_lexema(self,incio):
         longitud = 0
         for j in range(incio,len(self.entrada) - 1):

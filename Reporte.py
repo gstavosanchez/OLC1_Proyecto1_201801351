@@ -1,5 +1,5 @@
 import sys
-
+import os
 class Report():
     def __init__(self):
         pass
@@ -61,12 +61,20 @@ class Report():
 
     def writeReporte(self,ruta,texto,lista_error):
         #print(f"Generando Reporte en :{ruta}")
-        try:
-            report = self.reporteHTMLCSS(texto,lista_error)
-            archivo  = open(f"{ruta}","a",encoding="utf-8")
-            report = f"{report}\n"
-            archivo.writelines(report)
-            archivo.close()
-        except OSError as e:
-            print("Os error:{0}".format(e))
+        name = os.path.split(ruta)
+        if(name[1] != ""):
+            try:
+                report = self.reporteHTMLCSS(texto,lista_error)
+            
+                archivo  = open(f"{ruta}","a",encoding="utf-8")
+                report = f"{report}\n"
+                archivo.writelines(report)
+                archivo.close()
+            except OSError as e:
+                print("Os error:{0}".format(e))
+                os.makedirs(name[0])
+                self.writeReporte(ruta,texto,lista_error)
+        else:
+            print("No existe el nombre el archivo")
+            
         
