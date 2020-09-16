@@ -138,8 +138,9 @@ class Anality_CSS():
             self.columna += 1
 
 
-        print(self.bitacora)
-        return self.lista_error
+        #print(self.bitacora)
+        #return self.lista_error
+        return self.bitacora
 
     # ----------------->ESTADO Q2 <-------------------------------------- 
     # Numero 
@@ -684,7 +685,7 @@ class Anality_CSS():
         if(caracter == '/' or caracter == '*' or caracter == '{' or caracter == '}' or caracter == '"' or caracter == ';' or caracter == ':' or caracter == ',' or caracter == '<' or caracter == '>' or caracter == '(' or caracter == ')'):
             pass
         else:
-            _trasBitacora = f"[NO Aceptado ;{caracter}] - [{self.getHora()}] \n"
+            _trasBitacora = f"[NO ACEPTADO ;{caracter}] - [{self.getHora()}] \n"
             self.bitacora += _trasBitacora
             newError = Error_Lexico(posicion,linea,columna,caracter)
             self.lista_error.append(newError)

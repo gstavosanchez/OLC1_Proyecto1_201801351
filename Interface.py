@@ -23,12 +23,16 @@ class Interface():
         self.wind.title('Analysis Application')
         self.wind.geometry("1000x700")
         self.wind.configure(bg = '#0A010B')
+        
+
         self.textArea = CustomText(self.wind,width = 100,height = 25, bg ="#453B46", foreground = "#FFFFFF")
         self.txtConsola = Entry(self.wind, width = 10)
         self.play_button = PhotoImage(file = 'resource/js.png')
         self.play_css = PhotoImage(file = 'resource/css.png')
         self.play_html = PhotoImage(file = 'resource/HTML.png')
         self.play_sintactico = PhotoImage(file = 'resource/inv.png')
+        self.icon = PhotoImage(file = 'resource/engranaje.png')
+
         self.play_button = self.play_button.subsample(10,10)
         self.play_css = self.play_css.subsample(10,10)
         self.play_html = self.play_html.subsample(10,10)
@@ -37,6 +41,9 @@ class Interface():
         self.buttonOkCSS = Button(self.wind,image = self.play_css, command = self.getTextCSS, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
         self.buttonOkHTML = Button(self.wind,image = self.play_html, command = self.getTextHTML, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
         self.buttonOkSINT = Button(self.wind,image = self.play_sintactico, command = self.getTextSINT, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
+        
+        self.wind.iconphoto(False,self.icon)
+        
 
         self.lexema = ""
         self.analizador = Analicis()
@@ -95,14 +102,16 @@ class Interface():
         analizado = self.analizador._incio(entrada)
         self.setConsola(analizado)
         self.set_color_palabra(entrada)
-        self.analizador.clear_data()
+        #self.analizador.clear_data()
     
     def getTextCSS(self):
         self.txtConsola.delete("1.0","end")
         entrada = self.textArea.get("1.0",END)
 
         analizado = self.analizadorCSS.read_caracter(entrada)
-        self.setConsolaCSS(analizado)
+        
+        self.txtConsola.insert("2.0",analizado)
+        #self.setConsolaCSS(analizado)
         #self.analizadorCSS.limpiarCarcateres()
 
 
@@ -126,12 +135,11 @@ class Interface():
         
  
     
-    def setConsola(self,errores):
+    def setConsola(self,listError):
         self.txtConsola.insert("2.0","")
         texto = ''
-        for key,values in errores.items():
-            for caracter in values:
-                texto += f"Error Lexico in Line:{key}, Carcater:{caracter} \n"
+        for value in listError:
+            texto += f"Error in [ Ln {value.getLinea()} ] , Carcater:{value.getCaracter()} \n"
         
         self.txtConsola.insert("2.0",texto)
 
@@ -190,7 +198,12 @@ class Interface():
     #--------------->Metodo Guardar Reporte<--------------------------------
 
     def generar_reportJS(self):
-        pass
+        ruta = self.analizador.get_pathComentario()
+        if ruta != '' and ruta != ' ':
+            self.show_windowAux(ruta,'js')
+        else:
+            messagebox.showwarning("ERROR","No se encontro la ruta")
+
     def generar_reportHTML(self):
         ruta = self.analizadorHTML.get_pathComentario()
         if ruta != ''  and ruta != ' ':
@@ -227,7 +240,7 @@ class Interface():
         #Configuracion del boton
         button = Button()
         if (tipo == 'js'):
-            button = Button(self.windowAux,text=" Ok",bg ="#231129",foreground = "#FFFFFF",font=(14), command = lambda: self.setRutaHTML(f"{entradaTxt.get()}"))
+            button = Button(self.windowAux,text=" Ok",bg ="#231129",foreground = "#FFFFFF",font=(14), command = lambda: self.setRutaJS(f"{entradaTxt.get()}"))
         elif(tipo == 'css'):
             button = Button(self.windowAux,text=" Ok",bg ="#231129",foreground = "#FFFFFF",font=(14), command = lambda: self.setRutaCSS(f"{entradaTxt.get()}"))
         elif(tipo == 'html'):
@@ -252,6 +265,13 @@ class Interface():
         self.rutaHTML = ''
         self.analizadorCSS.limpiarCarcateres()
 
+    
+    def setRutaJS(self,ruta):
+        self.rutaHTML = ruta
+        self.windowAux.destroy()
+        self.analizador.enviarReporte(self.rutaHTML)
+        self.rutaHTML = ''
+        self.analizador.clear_data()
    
     #-------------------------><--------------------------------
     

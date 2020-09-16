@@ -1,6 +1,8 @@
 from Token import Tipo
 from Token import Token
 
+from Error import Error_Lexico
+from Reporte import Report
 
 class Analicis():
 
@@ -10,6 +12,12 @@ class Analicis():
     lexema = "" 
     linea = 1
     columan = 1
+    contador = 1
+    cont_Comentario = 1
+    cont_ComentarioAS = 1
+    recorrido_automata = dict()
+    newEntrada = ""
+    _reporte = Report()
 
     def __init__(self):
         self.lista_token = list()
@@ -18,8 +26,15 @@ class Analicis():
         self.lexema = ""
         self.linea = 1
         self.columan = 1
+        self.contador = 1
+        self.cont_Comentario = 1
+        self.cont_ComentarioAS = 1
+        self.recorrido_automata = dict()
+        self.newEntrada = ""
+        self._reporte = Report()
 
     def _incio(self,texto):
+        self.newEntrada = texto
         self.entrada  = texto + '$'
         self.cacterActual = ''
         posicion = 0
@@ -83,14 +98,22 @@ class Analicis():
             
         
             if self.entrada[posicion - 1] == '"' or self.entrada[posicion - 1] == "'"  or self.cacterActual == "'" or self.cacterActual == '"' :
+
+                #--------------->Graphviz ----------------------------------
+                if (self.cont_ComentarioAS < 2):
+                    transicion = f"{self.entrada[posicion -1]},q10"
+                    self.add_trancisiones("q0",transicion)
+
+                    transicion = f"{self.cacterActual},q5"
+                    self.add_trancisiones("q10",transicion)
+                #--------------------------------------------------
+
                 sizeLexema = self.get_size_lexemaEspecial(posicion)
-                #print(f"SizeLexema en ' :{sizeLexema}")
                 self.q5(posicion,posicion+sizeLexema)
                 posicion = posicion + sizeLexema
                 if (self.entrada[posicion] == "\n"):
                     self.linea += 1
-                #print(f"Caracter Actual: {self.cacterActual}")
-                #print(f"Anterior:{self.entrada[posicion -1]}  Actual:{self.entrada[posicion]}  siguinte:{self.entrada[posicion + 1]}")
+               
 
 
 
@@ -103,18 +126,35 @@ class Analicis():
 
             
             elif self.entrada[posicion - 1] == '/' and self.cacterActual == '/':
-                #print(self.cacterActual)
+                
+                #--------------->Graphviz ----------------------------------
+                if (self.cont_Comentario < 2):
+                    transicion = f"{self.entrada[posicion -1]},q8"
+                    self.add_trancisiones("q0",transicion)
+
+                    transicion = f"{self.cacterActual},q6"
+                    self.add_trancisiones("q8",transicion)
+                #--------------------------------------------------
+
                 sizeLexema = self.get_size_lexemaComentario_un(posicion)
                 self.q6(posicion+1,posicion+sizeLexema)
                 posicion = posicion + sizeLexema
             
             elif self.entrada[posicion - 1] == '/' and self.cacterActual == '*':
-                print(f"actaul:{self.cacterActual}")
+
+
+                
                 sizeLexema = self.get_size_lexemaComentario_mul(posicion)
                 self.q6(posicion+1,posicion+sizeLexema)
                 posicion = posicion + sizeLexema
              
             elif self.cacterActual.isalpha():
+                #--------------->Graphviz ----------------------------------
+                if (self.contador < 3):
+                    transicion = f"{self.cacterActual},q7"
+                    self.add_trancisiones("q0",transicion)
+                #--------------------------------------------------
+
                 sizeLexema  = self.get_size_lexema(posicion)
                 self.analizador_id_reservada(posicion,posicion + sizeLexema);
                 posicion = posicion + sizeLexema
@@ -135,13 +175,14 @@ class Analicis():
                                 elif(self.cacterActual == '|' and self.entrada[posicion - 1] == '|'):
                                     pass
                                 else:
-                                    self.pos_error[self.linea] = self.insert_error(posicion,self.cacterActual)
+                                    #self.pos_error[self.linea] = self.insert_error(posicion,self.cacterActual)
+                                    self.add_error(posicion,self.linea,self.columan,self.cacterActual)
             #print(posicion)
             posicion +=1 
 
         #self.imprimir()
             
-        return self.pos_error;
+        return self.lista_error;
 
         
 
@@ -158,7 +199,8 @@ class Analicis():
                     self.add_token(Tipo.valor,self.lexema,"blue")
 
             else:
-                self.pos_error[self.linea] = self.insert_error(actual,c)
+                #self.pos_error[self.linea] = self.insert_error(actual,c)
+                self.add_error(actual,self.linea,self.columan,c)
             actual +=1
                 
     
@@ -173,7 +215,8 @@ class Analicis():
                 if(actual +1 == fin):
                     self.add_token(Tipo.valor,self.lexema,"blue")
             else:
-                self.pos_error[self.linea] = self.insert_error(actual,c)
+                #self.pos_error[self.linea] = self.insert_error(actual,c)
+                self.add_error(actual,self.linea,self.columan,c)
     
 
     def analizador_id_reservada(self,actual, fin):
@@ -295,13 +338,17 @@ class Analicis():
             c = self.entrada[actual]
             
             if c.isalpha():
-                #print("Entro para q4")
+                #--------------->Graphviz ----------------------------------
+                if (self.contador < 3):
+                    transicion = f"{self.entrada[actual + 1]},q4"
+                    self.add_trancisiones("q7",transicion)
+                #--------------------------------------------------
                 self.q4(actual,fin)
                 break
             
             else:
-                self.pos_error[self.linea] = self.insert_error(actual,c)
-                print(f"Error lexico :C :{c} in line:{self.linea}")
+                #self.pos_error[self.linea] = self.insert_error(actual,c)
+                self.add_error(actual,self.linea,self.columan,c)
             actual +=1
 
     
@@ -313,21 +360,47 @@ class Analicis():
     
             if c.isalpha():
                 self.lexema += c
+
+                #--------------->Graphviz ----------------------------------
+                if (self.contador < 3):
+                    transicion = f"{c},q4"
+                    self.add_trancisiones("q4",transicion)
+                #--------------------------------------------------
+
                 if (actual + 1 == fin):
                     self.add_token(Tipo._id,self.lexema,"green")
+                    self.contador += 1
             
             elif c.isnumeric():
                 self.lexema += c
+
+                #--------------->Graphviz ----------------------------------
+                if (self.contador < 3):
+                    transicion = f"{c},q4"
+                    self.add_trancisiones("q4",transicion)
+                #--------------------------------------------------
+
                 if (actual + 1 == fin):
                     self.add_token(Tipo._id,self.lexema,"green")
+                    self.contador += 1
 
             elif c == "_":
                 self.lexema +=c
+
+                #--------------->Graphviz ----------------------------------
+                if (self.contador < 3):
+                    transicion = f"{c},q4"
+                    self.add_trancisiones("q4",transicion)
+                #--------------------------------------------------
+
                 if(actual + 1 == fin):
                     self.add_token(Tipo._id,self.lexema,"green")
+                    self.contador += 1
             else:
-                self.pos_error[self.linea] = self.insert_error(actual,c)
-                print(f"Error lexico :C :{c} in line:{self.linea}")
+                #self.pos_error[self.linea] = self.insert_error(actual,c)
+                #print(f"Error lexico :C :{c} in line:{self.linea}")
+                self.add_error(actual,self.linea,self.columan,c)
+
             actual += 1
 
 
@@ -338,8 +411,16 @@ class Analicis():
             c = self.entrada[actual]
             self.lexema += c
 
+            #--------------->Graphviz ----------------------------------
+            if (self.cont_ComentarioAS < 2):
+                transicion = f"{c},q5"
+                self.add_trancisiones("q5",transicion)
+            #--------------------------------------------------
+
             if(actual + 1 == fin):
                 self.add_token(Tipo.valor,self.lexema,"yellow")
+                self.cont_ComentarioAS += 1
+
             actual +=1
     
     def q6(self,actual,fin):
@@ -347,8 +428,16 @@ class Analicis():
         while actual < fin:
             c = self.entrada[actual]
             self.lexema += c
+
+            #--------------->Graphviz ----------------------------------
+            if (self.cont_Comentario < 2):
+                transicion = f"{c},q6"
+                self.add_trancisiones("q6",transicion)
+            #--------------------------------------------------
+
             if(actual + 1 == fin):
                 self.add_token(Tipo.comentario,self.lexema,"gray")
+                self.cont_Comentario += 1
             
             actual +=1
 
@@ -463,3 +552,51 @@ class Analicis():
         self.lista_token = list()
         self.lista_error = list()
         self.pos_error = {}
+
+    # ----> Metodos de agregar estados y transiciones  al diccionario para graphviz 
+    def add_trancisiones(self,clave,transicion):
+        lista_Trancision = self.get_listInDiccionario(clave)
+        if lista_Trancision == None:
+            lista_Trancision = list()
+            lista_Trancision.append(transicion)
+        else:
+            lista_Trancision.append(transicion)
+        
+        self.recorrido_automata[clave] = lista_Trancision
+
+
+    def get_listInDiccionario(self,clave):
+        for key,value in self.recorrido_automata.items():
+            if key == clave:
+                return value
+        return None
+    
+    def add_error(self,posicion,linea,columna,caracter):
+        newError = Error_Lexico(posicion,linea,columna,caracter)
+        self.lista_error.append(newError)
+
+    def get_pathComentario(self):
+        ruta = ''
+        for valor in self.lista_token:
+            if Tipo.comentario == valor.getTipoToken():
+                tokenValor = valor.getValorToken()
+                if(tokenValor.find("PATHW")) != -1:
+                    if(tokenValor.find("c:") != -1):
+                        if(tokenValor.find("*/") != -1):
+                            ruta = tokenValor[tokenValor.find('c:'):tokenValor.find('*/')].strip()
+                        else:
+                            ruta = tokenValor[tokenValor.find('c:'):len(tokenValor)].strip()
+                        
+                        break
+                    elif(tokenValor.find("C:") != -1):
+                        if(tokenValor.find("*/") != -1):
+                            ruta = tokenValor[tokenValor.find('C:'):tokenValor.find('*/')].strip()
+                        else:
+                            ruta = tokenValor[tokenValor.find('C:'):len(tokenValor)].strip()
+                        break
+        
+        return ruta
+    
+    def enviarReporte(self,ruta):
+        self._reporte.writeReporte(ruta,self.newEntrada,self.lista_error)
+        self.newEntrada = ''
