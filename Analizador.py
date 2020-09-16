@@ -49,7 +49,7 @@ class Analicis():
             if self.cacterActual == '/' and self.entrada[posicion + 1] == '*':
                 self.add_token(Tipo.comenPor,'/*',"gray")
                 sizeLexema = self.get_size_lexemaComentario_mul(posicion)
-                self.q6(posicion+2,posicion+sizeLexema)
+                self.q11(posicion+2,posicion+sizeLexema)
                 posicion = posicion + sizeLexema
                 
 
@@ -143,14 +143,13 @@ class Analicis():
             elif self.entrada[posicion - 1] == '/' and self.cacterActual == '*':
 
 
-                
                 sizeLexema = self.get_size_lexemaComentario_mul(posicion)
-                self.q6(posicion+1,posicion+sizeLexema)
+                self.q11(posicion+1,posicion+sizeLexema)
                 posicion = posicion + sizeLexema
              
             elif self.cacterActual.isalpha():
                 #--------------->Graphviz ----------------------------------
-                if (self.contador < 3):
+                if (self.contador < 2):
                     transicion = f"{self.cacterActual},q7"
                     self.add_trancisiones("q0",transicion)
                 #--------------------------------------------------
@@ -339,7 +338,7 @@ class Analicis():
             
             if c.isalpha():
                 #--------------->Graphviz ----------------------------------
-                if (self.contador < 3):
+                if (self.contador < 2):
                     transicion = f"{self.entrada[actual + 1]},q4"
                     self.add_trancisiones("q7",transicion)
                 #--------------------------------------------------
@@ -362,7 +361,7 @@ class Analicis():
                 self.lexema += c
 
                 #--------------->Graphviz ----------------------------------
-                if (self.contador < 3):
+                if (self.contador < 2):
                     transicion = f"{c},q4"
                     self.add_trancisiones("q4",transicion)
                 #--------------------------------------------------
@@ -375,7 +374,7 @@ class Analicis():
                 self.lexema += c
 
                 #--------------->Graphviz ----------------------------------
-                if (self.contador < 3):
+                if (self.contador < 2):
                     transicion = f"{c},q4"
                     self.add_trancisiones("q4",transicion)
                 #--------------------------------------------------
@@ -388,7 +387,7 @@ class Analicis():
                 self.lexema +=c
 
                 #--------------->Graphviz ----------------------------------
-                if (self.contador < 3):
+                if (self.contador < 2):
                     transicion = f"{c},q4"
                     self.add_trancisiones("q4",transicion)
                 #--------------------------------------------------
@@ -438,6 +437,17 @@ class Analicis():
             if(actual + 1 == fin):
                 self.add_token(Tipo.comentario,self.lexema,"gray")
                 self.cont_Comentario += 1
+            
+            actual +=1
+
+    def q11(self,actual,fin):
+        c = ''
+        while actual < fin:
+            c = self.entrada[actual]
+            self.lexema += c
+
+            if(actual + 1 == fin):
+                self.add_token(Tipo.comentario,self.lexema,"gray")
             
             actual +=1
 
@@ -598,5 +608,6 @@ class Analicis():
         return ruta
     
     def enviarReporte(self,ruta):
-        self._reporte.writeReporte(ruta,self.newEntrada,self.lista_error)
+        self._reporte.writeReporte(ruta,self.newEntrada,self.lista_error,'js')
+        self._reporte.generate_ReportGraphiv(self.recorrido_automata)
         self.newEntrada = ''

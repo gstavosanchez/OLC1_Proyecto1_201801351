@@ -1,22 +1,33 @@
 import sys
 import os
 class Report():
+    rutaJs = ''
     def __init__(self):
-        pass
+        self.rutaJs = ''
 
     def genenarte_Graphivz(self,dic_tranciones):
         bloqueUno = "R[shape=point] \n"
         bloqueDos = ' R -> q0 [arrowhead="dot",color="#832561"] \n'
+        caracter = ''
         for key,values in dic_tranciones.items():
             bloqueUno += '%s [label = "%s"]     \n'%(key,key)
         
         for key,values in dic_tranciones.items():
             for valor in values:
                 transicion = valor.split(",")
-                bloqueDos += ' %s -> %s [arrowhead="vee",color="#832561", label="%s"] \n'%(key,transicion[1],transicion[0])
+                caracter = transicion[0]
+                if caracter.find("\\") != -1:
+                    caracter = caracter.replace("\\",'/')
+                    #print(f"entra al primer if:{caracter}")
+                if caracter.find('"') != -1:
+                    caracter = caracter.replace('"',"'")
+                    #print(f"entra al 2 if:{caracter}")
+
+                
+                bloqueDos += ' %s -> %s [arrowhead="vee",color="#832561", label="%s"] \n'%(key,transicion[1],caracter)
 
         texto = 'digraph G{ \n rankdir=LR; \n node[shape="circle",fontcolor="#832561",color="#B965AE"];\n %s \n %s \n}'%(bloqueUno,bloqueDos)
-        print(texto)
+        return texto
 
     def genearete_bitacora(self,dic_tranciones):
         for kye,values in dic_tranciones.items():
@@ -59,10 +70,14 @@ class Report():
         #print(bloquePrincipal)
         return bloquePrincipal
 
-    def writeReporte(self,ruta,texto,lista_error):
+    def writeReporte(self,ruta,texto,lista_error,tipo='general'):
         #print(f"Generando Reporte en :{ruta}")
         name = os.path.split(ruta)
         if(name[1] != ""):
+            #----------------JS------------------------------------
+            if tipo == 'js':
+                self.rutaJs = ruta
+            #--------------------------------------------------------
             try:
                 report = self.reporteHTMLCSS(texto,lista_error)
             
@@ -76,5 +91,35 @@ class Report():
                 self.writeReporte(ruta,texto,lista_error)
         else:
             print("No existe el nombre el archivo")
+
+
+
+    def generate_ReportGraphiv(self,dic_tranciones):
+        #--------------Rutas---------------------------
+        path = os.path.split(self.rutaJs)
+        path_name = path[1].split('.')
+        path_name = path_name[0]
+
+        path_imagen = f"{path[0]}\{path_name}.png"
+        path_dot = f"{path[0]}\{path_name}.dot"
+        comando = 'dot -Tpng "%s" -o "%s"'%(path_dot,path_imagen)
+
+        #--------------Generar Graphviz---------------------------
+        text_Graphiv = self.genenarte_Graphivz(dic_tranciones)
+        self.write_Any_Archivo(text_Graphiv,path_dot)
+        #--------------------Ejecutar Comanod del .dot---------------
+        self.ejecutar_Comando(comando)
+
+
+
+
+    def write_Any_Archivo(self,texto,ruta):
+        archivo  = open(f"{ruta}","a",encoding="utf-8")
+        texto = f"{texto}\n"
+        archivo.writelines(texto)
+        archivo.close()
+
+    def ejecutar_Comando(self,commando):
+        os.system (commando)
             
         
