@@ -2,8 +2,12 @@ import sys
 import os
 class Report():
     rutaJs = ''
+    text_RecuperacionError = ''
+    ruta_generica = ''
     def __init__(self):
         self.rutaJs = ''
+        self.ruta_generica = ''
+        self.text_RecuperacionError = ''
 
     def genenarte_Graphivz(self,dic_tranciones):
         bloqueUno = "R[shape=point] \n"
@@ -56,6 +60,7 @@ class Report():
     def reporteHTMLCSS(self,texto,lista_Error):
         x = 1
         newTexto = self.solunionarError(texto,lista_Error)
+        self.text_RecuperacionError = newTexto
         head = '<head> \n \t<meta charset="UTF-8">\n \t<meta name="viewport" content="width=device-width, initial-scale=1.0">\n \t<title>Report</title>\n \t <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/minty/bootstrap.min.css" integrity="sha384-H4X+4tKc7b8s4GoMrylmy2ssQYpDHoqzPa9aKXbDwPoPUA3Ra8PA5dGzijN+ePnH" crossorigin="anonymous">\n </head>\n'
         bloqueUno = '\t<table class="table table-hover">\n \t \t <tr> \n \t \t \t <td scope="col"><strong>No.</strong></td>\n \t \t \t <td scope="col"><strong>Linea</strong></td>\n \t \t \t <td scope="col"><strong>Caracter</strong></td> \n \t \t </tr>\n'
         bloqueDos = ''
@@ -70,29 +75,48 @@ class Report():
         #print(bloquePrincipal)
         return bloquePrincipal
 
-    def writeReporte(self,ruta,texto,lista_error,tipo='general'):
+    def writeReporte(self,ruta,texto,lista_error,tipo):
         #print(f"Generando Reporte en :{ruta}")
         name = os.path.split(ruta)
         if(name[1] != ""):
-            #----------------JS------------------------------------
-            if tipo == 'js':
-                self.rutaJs = ruta
-            #--------------------------------------------------------
+            if (os.path.isdir(name[0]) == False):
+                os.makedirs(name[0])
+
             try:
                 report = self.reporteHTMLCSS(texto,lista_error)
-            
-                archivo  = open(f"{ruta}","a",encoding="utf-8")
+                archivo  = open(f"{ruta}","w",encoding="utf-8")
                 report = f"{report}\n"
                 archivo.writelines(report)
                 archivo.close()
             except OSError as e:
                 print("Os error:{0}".format(e))
                 os.makedirs(name[0])
-                self.writeReporte(ruta,texto,lista_error)
+                self.writeReporte(ruta,texto,lista_error,tipo)
+                #return
+
+            #----------------Rutas------------------------------------
+            #----------------JS------------------------------------
+            if tipo == 'js':
+                self.rutaJs = ruta
+            #----------------CSS------------------------------------
+            elif tipo == 'css':
+                self.ruta_generica = ruta
+                pathCSS = self.get_path(tipo)
+                self.write_Any_Archivo(self.text_RecuperacionError,pathCSS)
+                self.text_RecuperacionError = ''
+
+            #----------------HTML------------------------------------    
+            elif tipo == 'html':
+                self.ruta_generica = ruta
+                pathHTML = self.get_path(tipo)
+                self.write_Any_Archivo(self.text_RecuperacionError,pathHTML)
+                self.text_RecuperacionError = ''
+            #--------------------------------------------------------
+            
         else:
             print("No existe el nombre el archivo")
 
-
+    #----------------Reportes JS------------------------------------
 
     def generate_ReportGraphiv(self,dic_tranciones):
         #--------------Rutas---------------------------
@@ -102,19 +126,33 @@ class Report():
 
         path_imagen = f"{path[0]}\{path_name}.png"
         path_dot = f"{path[0]}\{path_name}.dot"
+        path_js = f"{path[0]}\{path_name}_SE.js"
+
         comando = 'dot -Tpng "%s" -o "%s"'%(path_dot,path_imagen)
 
+        #--------------Recuperacion de errores---------------------------
+        self.write_Any_Archivo(self.text_RecuperacionError,path_js)
+        self.text_RecuperacionError = ''
         #--------------Generar Graphviz---------------------------
         text_Graphiv = self.genenarte_Graphivz(dic_tranciones)
         self.write_Any_Archivo(text_Graphiv,path_dot)
         #--------------------Ejecutar Comanod del .dot---------------
         self.ejecutar_Comando(comando)
+        self.rutaJs = ''
+
+    #----------------Retorno Rutas------------------------------------
+    def get_path(self,tipo):
+        path = os.path.split(self.ruta_generica)
+        path_name = path[1].split('.')
+        path_name = path_name[0]
+        path_generica = f"{path[0]}\{path_name}_SE.{tipo}"
+        self.ruta_generica = ''
+        return path_generica
 
 
-
-
+    #----------------Escribir cualquier tipo de archivo------------------------------------
     def write_Any_Archivo(self,texto,ruta):
-        archivo  = open(f"{ruta}","a",encoding="utf-8")
+        archivo  = open(f"{ruta}","w",encoding="utf-8")
         texto = f"{texto}\n"
         archivo.writelines(texto)
         archivo.close()

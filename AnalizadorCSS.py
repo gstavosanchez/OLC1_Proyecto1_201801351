@@ -724,7 +724,7 @@ class Anality_CSS():
     
     def enviarReporte(self,ruta):
         #self._reporte.genenarte_Graphivz(self.recorrido_automata)
-        self._reporte.writeReporte(ruta,self.newEntrada,self.lista_error)
+        self._reporte.writeReporte(ruta,self.newEntrada,self.lista_error,'css')
         self.newEntrada = ''
         
     def getTime(self):

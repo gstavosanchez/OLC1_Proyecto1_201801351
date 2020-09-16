@@ -244,7 +244,7 @@ class Anality_HTML():
     def enviarReporte(self,ruta):
         #self.reporte.writeReporte(ruta,self.newEntrada,self.lista_error)
         print("Enviar Reporte")
-        self._reporte.writeReporte(ruta,self.newEntrada,self.lista_error)
+        self._reporte.writeReporte(ruta,self.newEntrada,self.lista_error,'html')
 
     def limpiarCaracter(self):
         self.cActual = ''
