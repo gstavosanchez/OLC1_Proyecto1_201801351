@@ -135,6 +135,9 @@ class Interface():
         self.txtConsola.delete("1.0","end")
         entrada = self.textArea.get("1.0",END)
         self.analizadorSINT.q0(entrada)
+        estado,cadena = self.analizadorSINT.get_estado()
+
+        self.txtConsola.insert("2.0",estado)
         
         # ------------------------------------------------------------------------------------------------
     
@@ -161,7 +164,7 @@ class Interface():
         self.txtConsola.delete("1.0","end")
         texto = ""
         for value in listaError:
-            texto += f"Error in [ Ln {value.getLinea()}, Pos {value.getPosicion()} ] , Carcater:{value.getCaracter()} \n"
+            texto += f"Error in [ Ln {value.getLinea()} ] , Carcater:{value.getCaracter()} \n"
         self.txtConsola.insert("2.0",texto)
     
     def color_sintaxisJS(self,palabra):
