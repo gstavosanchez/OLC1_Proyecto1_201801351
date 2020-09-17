@@ -159,5 +159,24 @@ class Report():
 
     def ejecutar_Comando(self,commando):
         os.system (commando)
+
+
+    def reporte_sintactico(self,ruta,estado,cadena):
+        reporte = self.generate_report_sintac(estado,cadena)
+        self.write_Any_Archivo(reporte,ruta)
             
+    def generate_report_sintac(self,estado,cadena):
+        x = 1
+        head = '<head> \n \t<meta charset="UTF-8">\n \t<meta name="viewport" content="width=device-width, initial-scale=1.0">\n \t<title>Report</title>\n \t <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/minty/bootstrap.min.css" integrity="sha384-H4X+4tKc7b8s4GoMrylmy2ssQYpDHoqzPa9aKXbDwPoPUA3Ra8PA5dGzijN+ePnH" crossorigin="anonymous">\n </head>\n'
+        bloqueUno = '\t<table class="table table-hover">\n \t \t <tr> \n \t \t \t <td scope="col"><strong>No.</strong></td>\n \t \t \t <td scope="col"><strong>Cadena</strong></td>\n \t \t \t <td scope="col"><strong>Estado</strong></td> \n \t \t </tr>\n'
+        bloqueDos = ''
         
+        caracter = estado
+        bloqueUno += '\t \t<tr>\n \t \t \t<td scope="col">%s</td>\n \t \t \t<td>%s</td>\n \t \t \t<td>%s</td> \n \t \t </tr>\n \n'%(x,cadena,caracter)
+        x += 1
+        bloqueUno += '\t</table>\n'
+        bloqueDos += '\t</br>\n </br>\n </br>\n </br>\n </br> \n \t <footer> \n \t \t <p><strong>Author: Elmer Gustavo Sanchez Garcia </strong></p>\n \t \t <p><a href="https://github.com/gstavosanchez/OLC1_Proyecto1_201801351"><em>Repo GitHub </em></a></p>\n \t </footer>'
+        bloquePrincipal = '<!DOCTYPE html>\n <html lang="en">\n %s \n <body>\n <h1>Listado Errores Sintactico</h1>\n %s \n %s \n </body>\n </html>\n'%(head,bloqueUno,bloqueDos)
+
+        #print(bloquePrincipal)
+        return bloquePrincipal

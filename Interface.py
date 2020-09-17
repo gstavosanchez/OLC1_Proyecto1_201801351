@@ -27,22 +27,27 @@ class Interface():
 
         self.textArea = CustomText(self.wind,width = 100,height = 25, bg ="#453B46", foreground = "#FFFFFF")
         self.txtConsola = Entry(self.wind, width = 10)
-        self.play_button = PhotoImage(file = 'resource/js.png')
-        self.play_css = PhotoImage(file = 'resource/css.png')
-        self.play_html = PhotoImage(file = 'resource/HTML.png')
-        self.play_sintactico = PhotoImage(file = 'resource/inv.png')
-        self.icon = PhotoImage(file = 'resource/engranaje.png')
+        #self.play_button = PhotoImage(file = 'resource/js.png')
+        #self.play_css = PhotoImage(file = 'resource/css.png')
+        #self.play_html = PhotoImage(file = 'resource/HTML.png')
+        #self.play_sintactico = PhotoImage(file = 'resource/inv.png')
+        #self.icon = PhotoImage(file = 'resource/engranaje.png')
 
-        self.play_button = self.play_button.subsample(10,10)
-        self.play_css = self.play_css.subsample(10,10)
-        self.play_html = self.play_html.subsample(10,10)
-        self.play_sintactico = self.play_sintactico.subsample(10,10)
-        self.buttonOk = Button(self.wind,image = self.play_button, command = self.getText, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
-        self.buttonOkCSS = Button(self.wind,image = self.play_css, command = self.getTextCSS, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
-        self.buttonOkHTML = Button(self.wind,image = self.play_html, command = self.getTextHTML, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
-        self.buttonOkSINT = Button(self.wind,image = self.play_sintactico, command = self.getTextSINT, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
-        
-        self.wind.iconphoto(False,self.icon)
+        #self.play_button = self.play_button.subsample(10,10)
+        #self.play_css = self.play_css.subsample(10,10)
+        #self.play_html = self.play_html.subsample(10,10)
+        #self.play_sintactico = self.play_sintactico.subsample(10,10)
+        #self.buttonOk = Button(self.wind,image = self.play_button, command = self.getText, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
+        #self.buttonOkCSS = Button(self.wind,image = self.play_css, command = self.getTextCSS, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
+        #self.buttonOkHTML = Button(self.wind,image = self.play_html, command = self.getTextHTML, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
+        #self.buttonOkSINT = Button(self.wind,image = self.play_sintactico, command = self.getTextSINT, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B")
+
+        self.buttonOk = Button(self.wind,text ="JS" ,command = self.getText, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B",foreground = "#FFFFFF",font=(14))
+        self.buttonOkCSS = Button(self.wind,text = "CSS",command = self.getTextCSS, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B",foreground = "#FFFFFF",font=(14))
+        self.buttonOkHTML = Button(self.wind,text = "HTML" ,command = self.getTextHTML, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B",foreground = "#FFFFFF",font=(14))
+        self.buttonOkSINT = Button(self.wind, text = "SINTACT.." ,command = self.getTextSINT, bg = "#0A010B", highlightbackground = "#0A010B", highlightcolor= "#0A010B",foreground = "#FFFFFF",font=(14))
+
+        #self.wind.iconphoto(False,self.icon)
         
 
         self.lexema = ""
@@ -60,6 +65,7 @@ class Interface():
         self.file_item.add_command(label = 'Save As JS',command=self.generar_reportJS)
         self.file_item.add_command(label = 'Save As CSS',command=self.generar_reportCSS)
         self.file_item.add_command(label = 'Save As HTML',command=self.generar_reportHTML)
+        self.file_item.add_command(label = 'Report Sinta...',command=self.generar_reportSINT)
 
         self.file_item.add_separator()
         self.file_item.add_command(label = 'Exit',command=self.exit_program)
@@ -172,7 +178,7 @@ class Interface():
         try:
             ruta =  ""
             #root = Tk()
-            filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("JS files","*.js"),("CSS files","*.css"),("HTML files","*.html"),("all files","*.*")))
+            filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("JS files","*.js"),("CSS files","*.css"),("HTML files","*.html"),("RMT files","*.rmt"),("all files","*.*")))
             ruta = filename
             if ruta != "":
                 self.write_consola(ruta)
@@ -219,6 +225,9 @@ class Interface():
             self.show_windowAux(ruta,'css')
         else:
             messagebox.showwarning("ERROR","No se encontro la ruta")
+
+    def generar_reportSINT(self):
+        self.analizadorSINT.generateReport()
 
 
     def show_windowAux(self,ruta,tipo):
